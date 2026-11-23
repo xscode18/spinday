@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SpinDay
 
-## Getting Started
+Spin once a day for a real way to make money today. Next.js (App Router) + Supabase (sign-in and database) + Stripe (paid spins), hosted on Vercel.
 
-First, run the development server:
+## Run it on your computer
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+With no keys in `.env.local` the site runs in **preview mode**: sign-in and payments are pretend and kept in memory, so you can click through everything.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How the rules are enforced
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Signing in is required to spin (Google or an emailed link, no passwords, no Apple).
+- The server picks the idea and spends the spin (`src/app/api/spin/route.ts` → `use_spin` in `supabase/migrations/0001_init.sql`). The free spin is stored per account with today's date, so reloading, clearing the browser or a second tab can't get another one.
+- Paid spins are added only by Stripe: the webhook (`/api/stripe/webhook`) and the return page both call `add_credits`, which credits each checkout session exactly once.
+- The free spin resets at midnight in `SPIN_RESET_TIMEZONE` (default Toronto time) for everyone.
 
-## Learn More
+## Where things live
 
-To learn more about Next.js, take a look at the following resources:
+| What | File |
+| --- | --- |
+| The 30 ideas and the full "Edit TikToks" plan | `src/lib/ideas.ts` |
+| Filter and pick logic | `src/lib/spin.ts` |
+| The page (reel, plan, packs, sign-in) | `src/components/SpinApp.tsx` |
+| The 9:16 clip recorder | `src/components/clip.ts` |
+| Database tables and functions | `supabase/migrations/0001_init.sql` |
+| Spin packs and prices | `src/lib/config.ts` (`PACKS`) and `PACKS` in `SpinApp.tsx` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To add a full plan for another idea, add an entry to `GUIDES` in `src/lib/ideas.ts` using the same id as the idea.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Going live
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See **GO-LIVE.md** for the step-by-step account setup (Supabase, Google, Stripe, Vercel, domain).
