@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
+import { mergeGuestInto } from "@/lib/wallet";
 
 // Google and the email link both come back here with a one-time code.
 export async function GET(req: Request) {
@@ -8,8 +9,13 @@ export async function GET(req: Request) {
   const next = url.searchParams.get("next");
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
   if (code) {
-    const { error } = await (await supabaseServer()).auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(safeNext, url.origin));
+    const supabase = await supabaseServer();
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error && data.user) {
+      // Anything this browser did before signing in (free spin, streak, bought spins) moves to the account.
+      await mergeGuestInto(`u:${data.user.id}`).catch(() => {});
+      return NextResponse.redirect(new URL(safeNext + (safeNext.includes("?") ? "&" : "?") + "signin=ok", url.origin));
+    }
   }
   return NextResponse.redirect(new URL("/?signin=failed", url.origin));
 }

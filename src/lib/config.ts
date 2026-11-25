@@ -28,3 +28,8 @@ export type PackId = keyof typeof PACKS;
 export function today(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: RESET_TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
 }
+
+/** Free spins a day for browsers without an account, per network (home Wi-Fi, phone data…). */
+export const GUEST_SPINS_PER_NETWORK = Math.max(1, Number(process.env.GUEST_SPINS_PER_NETWORK ?? 1) || 1);
+/** Salt for hashing network addresses (falls back to the service key so nothing extra must be set). */
+export const IP_SALT = process.env.SPIN_IP_SALT || SUPABASE_SERVICE_ROLE_KEY || "spinday-demo";

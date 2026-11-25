@@ -11,9 +11,9 @@ export async function POST(req: Request) {
   const { session_id } = (await req.json().catch(() => ({}))) as { session_id?: string };
   if (!session_id?.startsWith("cs_")) return NextResponse.json({ error: "session" }, { status: 400 });
   const session = await stripe.checkout.sessions.retrieve(session_id);
-  const owner = session.metadata?.user_id ?? session.client_reference_id;
-  if (owner !== viewer.id) return NextResponse.json({ error: "session" }, { status: 403 });
+  const owner = session.metadata?.owner ?? session.client_reference_id;
+  if (owner !== viewer.owner) return NextResponse.json({ error: "session" }, { status: 403 });
   await creditSession(session);
   const spins = Number(session.metadata?.spins) || 0;
-  return NextResponse.json({ paid: session.payment_status === "paid", spins, wallet: await getWallet(viewer.id) });
+  return NextResponse.json({ paid: session.payment_status === "paid", spins, wallet: await getWallet(viewer.owner) });
 }

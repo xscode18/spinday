@@ -1,5 +1,6 @@
 import "server-only";
-import { GUIDES, IDEAS, type Guide, type Idea } from "@/lib/ideas";
+import { IDEAS, type Guide, type Idea } from "@/lib/ideas";
+import { GUIDES } from "@/lib/guides";
 
 export interface Filters {
   time: 1 | 2 | 3;
