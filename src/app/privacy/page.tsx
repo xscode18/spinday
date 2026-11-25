@@ -7,21 +7,38 @@ export default function Privacy() {
     <>
       <main className="in legal">
         <h1>Privacy</h1>
-        <p>Last updated: November 2026</p>
-        <h2>What we keep</h2>
+        <p>Last updated: November 2026. This page explains what SpinDay keeps about you and why.</p>
+
+        <h2>If you spin without an account</h2>
         <ul>
-          <li>Your email address (and your name and picture if you sign in with Google), so you can sign in.</li>
-          <li>When you used your free spin, how many paid spins you have, and which ideas you landed on.</li>
-          <li>A record of each purchase. Card details go straight to Stripe; we never see or store them.</li>
+          <li>A random id saved in a cookie on your browser, so we know you&apos;ve used today&apos;s free spin and can keep your streak and paid spins.</li>
+          <li>A scrambled (salted and hashed) version of your network address, used only to stop the free spin being claimed over and over from the same network. We don&apos;t store the address itself.</li>
+          <li>Which ideas you landed on and when.</li>
         </ul>
+
+        <h2>If you add your email or sign in</h2>
+        <ul>
+          <li>Your email address, plus your name and picture if you sign in with Google, so you can sign in and keep your streak.</li>
+          <li>Your free-spin date, paid spins, streak and the ideas you landed on. Anything from before you signed in is moved onto your account.</li>
+        </ul>
+
+        <h2>Payments</h2>
+        <p>Card, Apple Pay and Google Pay details go straight to Stripe. We never see or store them. We keep a record of each purchase (pack, amount and date).</p>
+
+        <h2>Kept only in your browser</h2>
+        <p>The steps you tick off in a plan are saved in your own browser, not on our servers.</p>
+
+        <h2>Cookies</h2>
+        <p>We only use cookies the site needs to work: your guest id and your sign-in session. No advertising or tracking cookies.</p>
+
         <h2>What we don&apos;t do</h2>
-        <p>We don&apos;t sell your data, and we don&apos;t send you marketing email unless you ask for it.</p>
+        <p>We don&apos;t sell or rent your data, and we don&apos;t send you marketing email unless you ask for it.</p>
+
         <h2>Who handles it</h2>
-        <p>Supabase stores accounts and spins. Stripe handles payments. Vercel hosts the site. Google handles Google sign-in.</p>
-        <h2>Your plan progress</h2>
-        <p>The steps you tick off are saved only in your own browser.</p>
-        <h2>Deleting your account</h2>
-        <p>Email us from the address on your account and we&apos;ll delete it and everything linked to it.</p>
+        <p>Supabase stores accounts and spins, Stripe handles payments, Vercel hosts the site and Google handles Google sign-in. These services may store data outside your country, including in the United States.</p>
+
+        <h2>Your choices</h2>
+        <p>You can clear your browser cookies at any time. To see, correct or delete what we hold about you, email us from the address on your account and we&apos;ll do it, including everything linked to your account.</p>
       </main>
       <Footer />
     </>
