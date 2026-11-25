@@ -12,7 +12,7 @@ type Plan = { kind: "full"; guide: Guide } | { kind: "short"; steps: string[]; t
 interface Idea { id: string; name: string; how: string; real: string; earn: string; cost: string; time: 1 | 2 | 3; diff: string; plan: Plan }
 interface Wallet { freeLeft: boolean; credits: number }
 interface Me { signedIn: boolean; email?: string | null; wallet?: Wallet; streak?: number; last?: Idea | null }
-type Filters = { time: string; budget: string; where: string; diff: string };
+type Filters = { time: string; budget: string; kind: string; diff: string };
 
 const TIME_LABEL = ["", "Under 30 min", "1–2 hours", "All day"];
 const PACKS = [
@@ -23,7 +23,7 @@ const PACKS = [
 const FILTER_GROUPS: { key: keyof Filters; label: string; opts: [string, string][] }[] = [
   { key: "time", label: "Time", opts: [["1", "Under 30 min"], ["2", "1–2 hrs"], ["3", "All day"]] },
   { key: "budget", label: "Budget", opts: [["0", "$0"], ["20", "≤ $20"]] },
-  { key: "where", label: "Where", opts: [["any", "Any"], ["home", "Home"], ["out", "Out"], ["online", "Online"]] },
+  { key: "kind", label: "Type", opts: [["any", "Any"], ["design", "Design"], ["video", "Video"], ["writing", "Writing"], ["helping", "Helping"]] },
   { key: "diff", label: "Level", opts: [["any", "Any"], ["Easy", "Easy"], ["Medium", "Medium"]] },
 ];
 
@@ -37,7 +37,7 @@ const store = {
 interface Props { names: string[]; demo: boolean; paymentsLive: boolean; supabaseUrl: string; supabaseAnonKey: string }
 
 export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supabaseAnonKey }: Props) {
-  const [filters, setFilters] = useState<Filters>({ time: "2", budget: "0", where: "any", diff: "any" });
+  const [filters, setFilters] = useState<Filters>({ time: "2", budget: "0", kind: "any", diff: "any" });
   const [me, setMe] = useState<Me | null>(null);
   const [idea, setIdea] = useState<Idea | null>(null);
   const [spinning, setSpinning] = useState(false);
@@ -473,6 +473,11 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
               </ol>
               <p style={{ color: "var(--muted)", marginTop: 20 }}>What you&apos;ll use: {idea.plan.tools.join(", ")}.</p>
             </>
+          )}
+          {idea && (
+            <p className="disclaim">
+              <b>Heads up:</b> this is an idea, not a promise. Earnings are rough ranges and many people make less or nothing. It isn&apos;t financial, legal or tax advice. Follow each site&apos;s rules and age limits and the laws where you live. <a href="/terms">Terms</a>
+            </p>
           )}
         </div></section>
 

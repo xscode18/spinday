@@ -1,8 +1,10 @@
 import "server-only";
-// Idea catalogue. Server-only so the plans are only sent to people who land on them.
-// time: 1 = under 30 min, 2 = 1–2 hrs, 3 = all day. budget: 0 = free, 20 = up to $20.
+// Idea catalogue. Every idea can be done fully online, from anywhere, with a phone or a computer.
+// Server-only so the plans are only sent to people who land on them.
+// time: how long today's first steps take (1 = under 30 min, 2 = 1–2 hrs, 3 = most of the day).
+// budget: 0 = free to start, 20 = up to $20 to start.
 
-export type Where = "home" | "out" | "online";
+export type Kind = "design" | "video" | "writing" | "helping";
 export type Level = "Easy" | "Medium";
 
 export interface Idea {
@@ -12,10 +14,11 @@ export interface Idea {
   real: string;
   time: 1 | 2 | 3;
   budget: 0 | 20;
-  where: Where;
+  kind: Kind;
   earn: string;
   cost: string;
   diff: Level;
+  /** Short fallback plan, used only if an idea has no entry in guides.ts. */
   steps: string[];
   tools: string[];
 }
@@ -37,667 +40,72 @@ export interface Guide {
   mistakes: string[];
 }
 
-export const IDEAS: Idea[] = [
-  {
-    "id": "snow",
-    "name": "Shovel driveways after a snowfall",
-    "how": "Neighbours pay you per driveway, usually $20 to $40 each, in cash or e-transfer.",
-    "real": "Only works after it snows, and plenty of people say no. Ten doors usually gets you two or three yeses.",
-    "time": 2,
-    "budget": 0,
-    "where": "out",
-    "earn": "$40–$120",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Pick a morning right after snow",
-      "Knock on 10 doors with a one-line offer",
-      "Snap a before/after of each driveway",
-      "Leave your number for the next storm"
-    ],
-    "tools": [
-      "Your shovel",
-      "Phone camera"
-    ]
-  },
-  {
-    "id": "declutter",
-    "name": "Sell 5 things you don't use",
-    "how": "Buyers pay you when they pick up from your marketplace listing.",
-    "real": "Stuff sells for less than you think. Price low and it goes today; price high and it sits for weeks.",
-    "time": 1,
-    "budget": 0,
-    "where": "home",
-    "earn": "$30–$200",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Grab 5 things you haven't touched in 6 months",
-      "Photograph each by a window",
-      "Price 10–20% under similar listings",
-      "Reply fast; first replies usually buy"
-    ],
-    "tools": [
-      "Facebook Marketplace",
-      "Kijiji"
-    ]
-  },
-  {
-    "id": "edits",
-    "name": "Edit TikToks for a local business",
-    "how": "Shops pay you a monthly fee for a set number of edited videos.",
-    "real": "Most shops won't answer. Expect to pitch 5 to 10 before one says yes.",
-    "time": 2,
-    "budget": 0,
-    "where": "online",
-    "earn": "$50–$200/mo",
-    "cost": "$0",
-    "diff": "Medium",
-    "steps": [
-      "Pick a shop with weak videos",
-      "Re-edit one of their clips with captions and a hook",
-      "DM it to them as a free sample",
-      "Offer 4 edits a month for a flat price"
-    ],
-    "tools": [
-      "CapCut",
-      "Instagram DMs"
-    ]
-  },
-  {
-    "id": "carclean",
-    "name": "Clean car interiors",
-    "how": "Car owners pay about $25 per car, on the spot.",
-    "real": "You spend about $15 on supplies first. Weather and no-shows are the real risk.",
-    "time": 3,
-    "budget": 20,
-    "where": "out",
-    "earn": "$50–$150",
-    "cost": "~$15",
-    "diff": "Easy",
-    "steps": [
-      "Buy wipes and microfibre cloths",
-      "Post \"$25 interior clean, I come to you\" in a local group",
-      "Book 3 slots",
-      "Film a before/after of each car"
-    ],
-    "tools": [
-      "Neighbourhood groups",
-      "Home vacuum"
-    ]
-  },
-  {
-    "id": "tutor",
-    "name": "Tutor a subject you're good at",
-    "how": "Parents pay you per one-hour session.",
-    "real": "Finding the first student is the hard part. After that, parents refer each other.",
-    "time": 1,
-    "budget": 0,
-    "where": "online",
-    "earn": "$20–$40/hr",
-    "cost": "$0",
-    "diff": "Medium",
-    "steps": [
-      "Pick your strongest subject",
-      "Make a simple flyer with your price",
-      "Post in 2 local parent groups",
-      "Book the next session before you hang up"
-    ],
-    "tools": [
-      "Google Meet",
-      "Canva"
-    ]
-  },
-  {
-    "id": "templates",
-    "name": "Sell Canva templates",
-    "how": "Buyers pay per download on Etsy or Gumroad, and you keep what's left after fees.",
-    "real": "Most new listings make $0 in week one. This builds slowly over months.",
-    "time": 3,
-    "budget": 0,
-    "where": "online",
-    "earn": "$0–$50 first month",
-    "cost": "Small listing fees",
-    "diff": "Medium",
-    "steps": [
-      "Find a best-selling niche (planners, menus, story covers)",
-      "Design 3 templates in one style",
-      "List them with clear titles",
-      "Post a 15-second preview video"
-    ],
-    "tools": [
-      "Canva",
-      "Etsy or Gumroad"
-    ]
-  },
-  {
-    "id": "dogs",
-    "name": "Walk dogs in your area",
-    "how": "Owners pay you per walk, often $15 to $25 for 30 minutes.",
-    "real": "People won't hand their dog to a stranger right away. Start with neighbours who know you.",
-    "time": 2,
-    "budget": 0,
-    "where": "out",
-    "earn": "$20–$60",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Post in your building or street group",
-      "Offer a 30-minute walk at a flat price",
-      "Meet the owner and dog first",
-      "Offer a weekly slot"
-    ],
-    "tools": [
-      "Rover",
-      "Neighbourhood groups"
-    ]
-  },
-  {
-    "id": "flip",
-    "name": "Flip something listed for free",
-    "how": "You pick up a free item, clean it up and sell it for more.",
-    "real": "Some free stuff is free for a reason. Check it works before you haul it home.",
-    "time": 3,
-    "budget": 20,
-    "where": "out",
-    "earn": "$20–$150",
-    "cost": "$0–$20",
-    "diff": "Medium",
-    "steps": [
-      "Search the free section near you",
-      "Pick something easy to clean or fix",
-      "Clean it and take good photos",
-      "List it with a before photo"
-    ],
-    "tools": [
-      "Facebook Marketplace",
-      "Soap and a cloth"
-    ]
-  },
-  {
-    "id": "yard",
-    "name": "Do yard cleanups",
-    "how": "Homeowners pay per yard to rake, bag and tidy before winter or spring.",
-    "real": "It's real work and weather-dependent. Quote per yard so a slow job doesn't kill your rate.",
-    "time": 3,
-    "budget": 0,
-    "where": "out",
-    "earn": "$40–$120",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Walk your street and spot messy yards",
-      "Offer a flat price per yard",
-      "Bring bags and gloves",
-      "Ask for a review and the next job"
-    ],
-    "tools": [
-      "Rake",
-      "Lawn bags"
-    ]
-  },
-  {
-    "id": "babysit",
-    "name": "Babysit for families you know",
-    "how": "Parents pay you by the hour, usually cash at the end of the night.",
-    "real": "Parents hire people they trust. Start with family friends and get a reference.",
-    "time": 3,
-    "budget": 0,
-    "where": "out",
-    "earn": "$15–$25/hr",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Tell 5 parents you know you're available",
-      "Share your free evenings",
-      "Get a first-aid basics refresher",
-      "Ask happy parents to pass your name on"
-    ],
-    "tools": [
-      "Family group chats",
-      "Free first-aid videos"
-    ]
-  },
-  {
-    "id": "errands",
-    "name": "Run errands for seniors",
-    "how": "Older neighbours pay per trip or per hour for groceries, pharmacy runs and returns.",
-    "real": "Trust is everything. A note from someone they know helps a lot.",
-    "time": 2,
-    "budget": 0,
-    "where": "out",
-    "earn": "$15–$40",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Make a simple flyer with your name and number",
-      "Drop it at 20 doors or a seniors' building",
-      "Set a flat price per trip",
-      "Text a receipt photo after every errand"
-    ],
-    "tools": [
-      "Printed flyer",
-      "Phone"
-    ]
-  },
-  {
-    "id": "moving",
-    "name": "Help people move",
-    "how": "People moving pay you hourly to carry boxes and furniture.",
-    "real": "Heavy, and jobs are mostly weekends and month-end. Bring a friend for bigger jobs.",
-    "time": 3,
-    "budget": 0,
-    "where": "out",
-    "earn": "$20–$30/hr",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Post \"Moving help, $25/hr\" in local groups",
-      "Aim for the last weekend of the month",
-      "Bring gloves and a dolly if you can",
-      "Ask for a tip and a review"
-    ],
-    "tools": [
-      "Local groups",
-      "Kijiji gigs"
-    ]
-  },
-  {
-    "id": "thrift",
-    "name": "Thrift and resell clothes",
-    "how": "You buy cheap at thrift stores and sell for more on resale apps.",
-    "real": "Most of what you find won't sell high. Learn brands first and buy only what you know.",
-    "time": 3,
-    "budget": 20,
-    "where": "out",
-    "earn": "$20–$100",
-    "cost": "$10–$20",
-    "diff": "Medium",
-    "steps": [
-      "Look up 5 brands that resell well",
-      "Spend $20 max at one thrift store",
-      "Photograph each piece on a hanger in daylight",
-      "List on 2 apps at once"
-    ],
-    "tools": [
-      "Depop",
-      "Vinted"
-    ]
-  },
-  {
-    "id": "sneakers",
-    "name": "Clean sneakers for people",
-    "how": "People pay $15 to $30 a pair to get dirty sneakers looking new.",
-    "real": "You need a good before/after to get trust. Practise on your own pairs first.",
-    "time": 2,
-    "budget": 20,
-    "where": "home",
-    "earn": "$30–$90",
-    "cost": "~$15",
-    "diff": "Easy",
-    "steps": [
-      "Buy a sneaker cleaning kit",
-      "Clean your own pair and film the before/after",
-      "Post it with your price",
-      "Offer pickup and drop-off at school or nearby"
-    ],
-    "tools": [
-      "Sneaker cleaning kit",
-      "TikTok"
-    ]
-  },
-  {
-    "id": "photos",
-    "name": "Shoot photos for small businesses",
-    "how": "Cafés and shops pay per shoot for menu, product or social photos.",
-    "real": "Your phone is enough to start, but you'll need a few great samples before anyone pays.",
-    "time": 3,
-    "budget": 0,
-    "where": "out",
-    "earn": "$50–$150 per shoot",
-    "cost": "$0",
-    "diff": "Medium",
-    "steps": [
-      "Shoot 10 great photos of one local product for free",
-      "Show them to the owner",
-      "Offer a monthly photo pack",
-      "Ask to be tagged when they post"
-    ],
-    "tools": [
-      "Phone camera",
-      "Lightroom mobile (free)"
-    ]
-  },
-  {
-    "id": "logos",
-    "name": "Design logos on Fiverr",
-    "how": "Buyers pay per gig and Fiverr takes a cut.",
-    "real": "The first few gigs are cheap to get reviews. Prices go up once you have them.",
-    "time": 3,
-    "budget": 0,
-    "where": "online",
-    "earn": "$10–$50 per gig",
-    "cost": "$0",
-    "diff": "Medium",
-    "steps": [
-      "Make 3 sample logos for made-up brands",
-      "Create a gig with clear packages",
-      "Price your first gig low for reviews",
-      "Deliver early and ask for a review"
-    ],
-    "tools": [
-      "Canva or Figma",
-      "Fiverr"
-    ]
-  },
-  {
-    "id": "va",
-    "name": "Be a virtual assistant for a creator",
-    "how": "Creators pay hourly or monthly for inbox, scheduling and comment help.",
-    "real": "Creators need to trust you with their accounts. Start small and be reliable.",
-    "time": 2,
-    "budget": 0,
-    "where": "online",
-    "earn": "$15–$25/hr",
-    "cost": "$0",
-    "diff": "Medium",
-    "steps": [
-      "List 5 tasks you can do (DMs, scheduling, research)",
-      "DM 10 small creators with a specific offer",
-      "Offer a paid one-week trial",
-      "Send a short end-of-week report"
-    ],
-    "tools": [
-      "Notion",
-      "Google Calendar"
-    ]
-  },
-  {
-    "id": "captions",
-    "name": "Write social posts for a business",
-    "how": "Businesses pay a monthly fee for a set of posts and captions.",
-    "real": "Owners care about results. Show a sample post written for them, not a general pitch.",
-    "time": 1,
-    "budget": 0,
-    "where": "online",
-    "earn": "$100–$300/mo",
-    "cost": "$0",
-    "diff": "Medium",
-    "steps": [
-      "Pick a business with a dead Instagram",
-      "Write 3 sample posts for them",
-      "DM or email them the samples",
-      "Offer 12 posts a month for a flat fee"
-    ],
-    "tools": [
-      "Canva",
-      "ChatGPT for drafts"
-    ]
-  },
-  {
-    "id": "bake",
-    "name": "Bake and sell treats",
-    "how": "Friends, coworkers or classmates pay per box of cookies or brownies.",
-    "real": "Check your local rules on selling home food. Start with people you know.",
-    "time": 3,
-    "budget": 20,
-    "where": "home",
-    "earn": "$30–$100",
-    "cost": "~$20",
-    "diff": "Medium",
-    "steps": [
-      "Pick one thing you bake well",
-      "Bake a batch and price per box of 6",
-      "Pre-sell in a group chat before baking more",
-      "Deliver in one round"
-    ],
-    "tools": [
-      "Group chats",
-      "Instagram stories"
-    ]
-  },
-  {
-    "id": "techhelp",
-    "name": "Help neighbours with tech",
-    "how": "Neighbours pay per visit to set up phones, Wi-Fi, TVs and printers.",
-    "real": "Patience matters more than skill. Older people will call you back if you're kind.",
-    "time": 2,
-    "budget": 0,
-    "where": "out",
-    "earn": "$20–$60",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Make a flyer: \"Phone, Wi-Fi or TV problems? $25 a visit\"",
-      "Post it in a seniors' building or community board",
-      "Write simple steps on paper for them",
-      "Leave your number on their fridge"
-    ],
-    "tools": [
-      "Printed flyer",
-      "Phone"
-    ]
-  },
-  {
-    "id": "bikes",
-    "name": "Tune up bikes",
-    "how": "Riders pay per tune-up for brakes, gears and chains.",
-    "real": "Learn on your own bike first using free videos. Don't take jobs you can't finish.",
-    "time": 2,
-    "budget": 20,
-    "where": "home",
-    "earn": "$20–$60",
-    "cost": "~$15",
-    "diff": "Medium",
-    "steps": [
-      "Watch tune-up videos and practise on your bike",
-      "Buy a basic tool kit and chain lube",
-      "Offer $20 tune-ups in local groups",
-      "Take before/after photos"
-    ],
-    "tools": [
-      "Free repair videos",
-      "Basic bike tools"
-    ]
-  },
-  {
-    "id": "cans",
-    "name": "Collect bottles and cans for deposits",
-    "how": "Bottle depots pay you the deposit on every container you return.",
-    "real": "It's small money per can. Partner with a building or a party host for volume.",
-    "time": 2,
-    "budget": 0,
-    "where": "out",
-    "earn": "$10–$40",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Ask a neighbour, building or bar to save empties for you",
-      "Pick up in bags",
-      "Sort by type before the depot",
-      "Set up a weekly pickup"
-    ],
-    "tools": [
-      "Garbage bags",
-      "Local bottle depot"
-    ]
-  },
-  {
-    "id": "windows",
-    "name": "Wash windows",
-    "how": "Homeowners pay per house to clean inside and outside ground-floor windows.",
-    "real": "Ground floor only unless you have proper gear. Bad weather cancels jobs.",
-    "time": 3,
-    "budget": 20,
-    "where": "out",
-    "earn": "$40–$120",
-    "cost": "~$20",
-    "diff": "Easy",
-    "steps": [
-      "Buy a squeegee and a bucket",
-      "Clean your own windows and photograph them",
-      "Offer a flat price per house",
-      "Book neighbouring houses on the same day"
-    ],
-    "tools": [
-      "Squeegee",
-      "Bucket"
-    ]
-  },
-  {
-    "id": "plants",
-    "name": "House-sit for people on vacation",
-    "how": "People pay per day for watering plants, getting mail and checking the house.",
-    "real": "It's quiet money that depends on trust. Start with people who already know you.",
-    "time": 1,
-    "budget": 0,
-    "where": "out",
-    "earn": "$10–$25/day",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Tell neighbours you're available for vacations",
-      "Offer a daily rate",
-      "Text a photo every visit",
-      "Leave a note when they're back"
-    ],
-    "tools": [
-      "Group chats",
-      "Phone"
-    ]
-  },
-  {
-    "id": "usertest",
-    "name": "Do paid website tests",
-    "how": "Testing sites pay per test for recording yourself using a website or app.",
-    "real": "You'll fail a lot of screener questions. Tests come in waves, so it's side money.",
-    "time": 1,
-    "budget": 0,
-    "where": "online",
-    "earn": "$10–$30",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Sign up on 2 testing sites",
-      "Fill in your profile honestly",
-      "Do the practice test",
-      "Check for new tests a few times a day"
-    ],
-    "tools": [
-      "UserTesting",
-      "Other testing sites"
-    ]
-  },
-  {
-    "id": "transcribe",
-    "name": "Transcribe audio",
-    "how": "Transcription sites and podcasters pay per minute of audio typed.",
-    "real": "Pay per hour starts low until you get fast. Good for quiet evenings.",
-    "time": 2,
-    "budget": 0,
-    "where": "online",
-    "earn": "$5–$15/hr to start",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Take the entry test on a transcription site",
-      "Practise with free audio",
-      "Start with short files",
-      "Offer podcasters a per-episode rate later"
-    ],
-    "tools": [
-      "Rev or similar sites",
-      "Headphones"
-    ]
-  },
-  {
-    "id": "commissions",
-    "name": "Draw custom pet portraits",
-    "how": "Pet owners pay per drawing, digital or on paper.",
-    "real": "You need 3 strong samples first. Draw your friends' pets for free to get them.",
-    "time": 3,
-    "budget": 0,
-    "where": "online",
-    "earn": "$15–$50 per piece",
-    "cost": "$0",
-    "diff": "Medium",
-    "steps": [
-      "Draw 3 pets for friends for free",
-      "Post them with a price",
-      "Take orders through DMs",
-      "Deliver a high-res file or mail the print"
-    ],
-    "tools": [
-      "Procreate or paper",
-      "Instagram"
-    ]
-  },
-  {
-    "id": "organize",
-    "name": "Organize garages and closets",
-    "how": "Homeowners pay hourly to sort, clear and organize messy spaces.",
-    "real": "It's physical and people get attached to stuff. Let them decide what goes.",
-    "time": 3,
-    "budget": 0,
-    "where": "out",
-    "earn": "$20–$30/hr",
-    "cost": "$0",
-    "diff": "Easy",
-    "steps": [
-      "Post before/after photos of your own closet",
-      "Offer a 3-hour garage package",
-      "Bring bags and labels",
-      "Offer to sell or donate what they don't keep"
-    ],
-    "tools": [
-      "Labels",
-      "Garbage bags"
-    ]
-  },
-  {
-    "id": "ugc",
-    "name": "Make UGC videos for brands",
-    "how": "Brands pay per short video of you showing their product.",
-    "real": "Your first deals may pay in free product. Cash comes once you have samples.",
-    "time": 3,
-    "budget": 0,
-    "where": "home",
-    "earn": "$0–$150 per video",
-    "cost": "$0",
-    "diff": "Medium",
-    "steps": [
-      "Film 3 sample videos with products you own",
-      "Make a simple portfolio page",
-      "Pitch 10 small brands by email or DM",
-      "Ask for paid usage once they like your work"
-    ],
-    "tools": [
-      "CapCut",
-      "Canva portfolio"
-    ]
-  },
-  {
-    "id": "resumes",
-    "name": "Fix resumes for people",
-    "how": "Job seekers pay per resume for cleanup and a better layout.",
-    "real": "You need to be good with words. Do 2 free ones first to get testimonials.",
-    "time": 1,
-    "budget": 0,
-    "where": "online",
-    "earn": "$15–$40 per resume",
-    "cost": "$0",
-    "diff": "Medium",
-    "steps": [
-      "Redo your own resume as a sample",
-      "Fix 2 friends' resumes for free",
-      "Post a before/after with your price",
-      "Deliver within 48 hours"
-    ],
-    "tools": [
-      "Google Docs",
-      "Canva resume templates"
-    ]
-  }
+type Row = [string, string, string, string, Idea["time"], Idea["budget"], Kind, string, string, Level, string[], string[]];
+const ROWS: Row[] = [
+  ["edits", "Edit TikToks for a small business", "Businesses pay you a monthly fee for a set number of edited short videos.", "Most businesses won't answer. Expect to pitch 10 to 20 before one says yes.", 2, 0, "video", "$50–$200/mo", "$0", "Medium",
+    ["Find 10 businesses with weak videos", "Re-edit one clip as a free sample", "DM it to them", "Offer 4 edits a month for a flat price"], ["CapCut", "Instagram DMs"]],
+  ["tutor", "Tutor a subject online", "Parents or students pay you per one-hour video session.", "The first student is the hard part. After that, reviews and referrals bring more.", 1, 0, "helping", "$20–$40/hr", "$0", "Medium",
+    ["Pick your strongest subject", "Make a tutor profile", "Post in online parent and student groups", "Book the next session before you hang up"], ["Google Meet", "Canva"]],
+  ["templates", "Sell Canva templates", "Buyers pay per download on Etsy or Gumroad, and you keep what's left after fees.", "Most new listings make $0 in week one. This builds slowly over months.", 3, 0, "design", "$0–$50 first month", "Small listing fees", "Medium",
+    ["Find a best-selling niche", "Design 3 templates in one style", "List them with clear titles", "Post a 15-second preview video"], ["Canva", "Etsy or Gumroad"]],
+  ["logos", "Design logos on Fiverr", "Buyers pay per gig and Fiverr takes a cut.", "The first few gigs are cheap to get reviews. Prices go up once you have them. Fiverr is 18+.", 3, 0, "design", "$10–$50 per gig", "$0", "Medium",
+    ["Make 3 sample logos", "Create a gig with clear packages", "Price your first gig low for reviews", "Deliver early and ask for a review"], ["Canva or Figma", "Fiverr"]],
+  ["va", "Be a virtual assistant for a creator", "Creators pay hourly or monthly for inbox, scheduling and comment help.", "Creators need to trust you with their accounts. Start small and be reliable.", 2, 0, "helping", "$15–$25/hr", "$0", "Medium",
+    ["List 5 tasks you can do", "Pitch 10 small creators", "Offer a paid one-week trial", "Send a short end-of-week report"], ["Notion", "Google Calendar"]],
+  ["captions", "Write social posts for a business", "Businesses pay a monthly fee for a set of posts and captions.", "Owners care about results. Show a sample written for them, not a general pitch.", 1, 0, "writing", "$100–$300/mo", "$0", "Medium",
+    ["Find a business with a quiet Instagram", "Write 3 sample posts for them", "Send them the samples", "Offer 12 posts a month"], ["Canva", "Google Docs"]],
+  ["usertest", "Do paid website tests", "Testing sites pay per test for recording yourself using a website or app.", "You'll fail a lot of screener questions. Tests come in waves, so it's side money. Most sites are 18+.", 1, 0, "helping", "$10–$30", "$0", "Easy",
+    ["Sign up on 2 testing sites", "Fill in your profile honestly", "Do the practice test", "Check for tests a few times a day"], ["UserTesting", "Prolific"]],
+  ["transcribe", "Transcribe audio", "Transcription sites and podcasters pay per minute of audio typed.", "Pay per hour starts low until you get fast. Good for quiet evenings.", 2, 0, "writing", "$5–$15/hr to start", "$0", "Easy",
+    ["Take a transcription site's entry test", "Practise with free audio", "Start with short, clear files", "Pitch podcasters later"], ["Rev", "Headphones"]],
+  ["commissions", "Draw digital pet portraits", "Pet owners anywhere pay per drawing, delivered as a file.", "You need 3 strong samples first. Draw friends' pets for free to get them.", 3, 0, "design", "$15–$50 per piece", "$0", "Medium",
+    ["Draw 3 pets for friends", "Post them with a price", "Take orders through DMs", "Deliver a high-res file"], ["Procreate or free drawing apps", "Instagram"]],
+  ["ugc", "Make UGC videos for brands", "Brands pay per short video of you showing their product.", "Your first deals may pay in free product. Cash comes once you have samples.", 3, 0, "video", "$0–$150 per video", "$0", "Medium",
+    ["Film 3 sample videos", "Make a portfolio page", "Pitch 10 small brands", "Charge extra for ads usage"], ["CapCut", "Canva"]],
+  ["resumes", "Fix resumes online", "Job seekers pay per resume for a cleaner layout and better wording.", "You need to be good with words. Do 2 free ones first to get testimonials.", 1, 0, "writing", "$15–$40 per resume", "$0", "Medium",
+    ["Redo your own resume", "Fix 2 friends' resumes free", "Post a before/after with your price", "Deliver within 48 hours"], ["Google Docs", "Canva"]],
+  ["declutter", "Sell 5 things you own online", "Buyers anywhere pay through eBay or Mercari, and you ship it to them.", "Stuff sells for less than you think, and you'll pay shipping and fees. Small, light items work best.", 1, 0, "helping", "$30–$200", "$0", "Easy",
+    ["Pick 5 small things you don't use", "Check sold prices", "List with good photos", "Ship within 2 days"], ["eBay", "Mercari"]],
+  ["thumbnails", "Design YouTube thumbnails", "YouTubers pay per thumbnail or for a monthly batch.", "Creators judge you on samples only. Make 5 strong ones before you pitch anyone.", 2, 0, "design", "$10–$40 each", "$0", "Medium",
+    ["Redesign 5 thumbnails from real videos", "Post a before/after", "Pitch 10 small YouTubers", "Offer a 4-thumbnail pack"], ["Canva or Photopea", "YouTube"]],
+  ["clips", "Cut clips from podcasts and streams", "Podcasters and streamers pay per clip or monthly for short clips of their best moments.", "You'll watch a lot of footage. The skill is spotting the 30 seconds worth posting.", 2, 0, "video", "$5–$25 per clip", "$0", "Easy",
+    ["Pick a podcaster with no clips", "Cut 3 sample clips with captions", "Send them over", "Offer 10 clips a month"], ["CapCut", "YouTube"]],
+  ["subtitles", "Add subtitles to creators' videos", "Creators pay per video for accurate subtitles, and more if you translate into another language.", "Auto-captions do most of the work, so you're paid for fixing them well. Translation pays more if you're fluent.", 2, 0, "writing", "$10–$40 per video", "$0", "Easy",
+    ["Subtitle one of a creator's videos as a sample", "Send it to them", "Offer a per-video price", "Add translation if you're bilingual"], ["YouTube Studio", "Subtitle Edit"]],
+  ["websites", "Build one-page websites for small businesses", "Businesses pay a one-time fee for a simple site, plus a small monthly fee for updates.", "Lots of tiny businesses still only have a Facebook page. Finding them is easy; getting replies takes volume.", 3, 0, "design", "$100–$300 per site", "$0 (they pay hosting)", "Medium",
+    ["Find businesses with no website", "Build a free demo for one", "Send them the link", "Charge for launch and updates"], ["Carrd", "Google Maps"]],
+  ["gbp", "Fix Google listings for local businesses", "Businesses pay a flat fee to have their Google Business Profile filled in with photos, hours and posts. You do it all online.", "Owners must add you as a manager themselves. Some won't bother, so pitch the ones that clearly need help.", 1, 0, "helping", "$50–$150 per business", "$0", "Easy",
+    ["Find 10 listings with missing info", "Write a short list of what's missing for one", "Send it to the owner", "Offer to fix it for a flat fee"], ["Google Maps", "Google Business Profile"]],
+  ["proofread", "Proofread newsletters and blogs", "Writers and small businesses pay per piece or per 1,000 words to have mistakes fixed before they publish.", "You need a sharp eye and good grammar. One missed typo in a sample loses the client.", 1, 0, "writing", "$10–$30 per piece", "$0", "Easy",
+    ["Find 10 newsletters with typos", "Send one a short list of fixes", "Offer a per-issue price", "Turn around in 24 hours"], ["Google Docs", "Substack"]],
+  ["productdesc", "Write product descriptions for online stores", "Online shop owners pay per description or per batch to make their listings sell better.", "Shops with 5 sales a month can't pay much. Look for shops that are already selling.", 2, 0, "writing", "$5–$20 per product", "$0", "Easy",
+    ["Find 10 shops with weak descriptions", "Rewrite 3 of one shop's listings", "Send them as a free sample", "Offer a batch price"], ["Etsy", "Shopify stores"]],
+  ["newsletter", "Write email newsletters for businesses", "Businesses pay monthly for you to write and send their email newsletter.", "Most small businesses have an email list they never use. You'll need to show what one good email looks like.", 2, 0, "writing", "$100–$300/mo", "$0", "Medium",
+    ["Find a business that collects emails but never sends", "Write one sample email for them", "Send it", "Offer 2 to 4 emails a month"], ["Mailchimp", "Google Docs"]],
+  ["pinterest", "Run Pinterest for small online shops", "Shop owners pay monthly for you to design and post pins that send people to their store.", "Pinterest is slow to build, usually 2 to 3 months before traffic grows. Say so upfront.", 2, 0, "design", "$100–$250/mo", "$0", "Medium",
+    ["Learn how pins send traffic", "Design 5 pins for one shop as a sample", "Pitch the owner", "Offer 20 pins a month"], ["Pinterest", "Canva"]],
+  ["discord", "Moderate Discord servers", "Creators and communities pay monthly for moderators who keep chats clean and answer questions.", "A lot of mod work is unpaid at first. Mod for free in one server to get the experience that gets you paid.", 1, 0, "helping", "$50–$300/mo", "$0", "Easy",
+    ["Learn Discord moderation basics", "Volunteer in one active server", "Ask small creators if they need paid mods", "Offer set hours each week"], ["Discord", "Discord Moderator Academy"]],
+  ["dataentry", "Clean up spreadsheets for small businesses", "Businesses pay hourly or per job to have messy lists, contacts and inventory sorted into clean spreadsheets.", "It's repetitive work. Accuracy is what gets you hired again, not speed.", 2, 0, "helping", "$15–$25/hr", "$0", "Easy",
+    ["Learn sorting, filters and VLOOKUP", "Make a before/after sample", "Make a profile on a freelance site", "Bid on small jobs"], ["Google Sheets", "Upwork"]],
+  ["photoedit", "Edit photos for photographers", "Photographers pay per photo or per shoot for you to cull and colour-edit their pictures.", "Busy photographers hate editing, but they're picky. Match their style exactly.", 3, 0, "design", "$0.50–$2 per photo", "$0", "Medium",
+    ["Learn Lightroom basics", "Edit 20 free sample RAW photos", "Pitch 10 photographers", "Offer to edit one shoot"], ["Lightroom", "Instagram"]],
+  ["voiceover", "Record voiceovers", "Businesses and creators pay per script for you to record a clean voiceover. Fiverr takes a cut.", "You need a quiet room. A closet full of clothes works better than you'd think. Fiverr is 18+.", 2, 20, "video", "$10–$50 per script", "$0–$20 (mic optional)", "Easy",
+    ["Record 3 samples in a quiet spot", "Clean the audio for free", "Make a voiceover gig", "Deliver fast to earn reviews"], ["Audacity", "Fiverr"]],
+  ["beats", "Sell beats online", "Rappers and singers pay to license your beats on beat-selling sites.", "Only for people who already make music. It takes many uploads before the first sale.", 3, 0, "video", "$20–$100 per licence", "$0", "Medium",
+    ["Pick your 5 best beats", "Tag and upload them", "Post 15-second previews", "Message artists who'd fit"], ["BeatStars", "YouTube"]],
+  ["pod", "Sell your designs on print-on-demand", "When someone buys a shirt or sticker with your design, the site prints and ships it and pays you a cut.", "Most designs never sell. The few that do sell for months. It's a numbers game.", 3, 0, "design", "$0–$50 first month", "$0", "Easy",
+    ["Pick a niche with a sense of humour", "Make 10 simple designs", "Upload with good tags", "Post them where that niche hangs out"], ["Redbubble", "Canva"]],
+  ["blog", "Write blog posts for businesses", "Businesses pay per article so their website shows up in Google searches.", "Clients want posts that sound human and are accurate. AI-only drafts get noticed and rejected.", 3, 0, "writing", "$30–$100 per post", "$0", "Medium",
+    ["Write 2 sample posts in a niche you know", "Put them on a free portfolio", "Pitch 10 businesses with quiet blogs", "Offer 2 posts a month"], ["Google Docs", "Medium"]],
+  ["language", "Teach a language you speak online", "Learners pay per 30- or 60-minute video call to practise speaking with you.", "Teaching sites have lots of tutors, so your profile video matters most.", 2, 0, "helping", "$10–$25/hr", "$0", "Easy",
+    ["Record a 1-minute intro video", "Make a teacher profile", "Price your first lessons low", "Plan simple conversation topics"], ["italki", "Preply"]],
+  ["podcastedit", "Edit podcast audio", "Podcasters pay per episode for you to cut mistakes, balance volume and remove background noise.", "Free tools can do it, but you need patience and good headphones.", 2, 0, "video", "$20–$60 per episode", "$0", "Medium",
+    ["Learn basic audio editing", "Clean up 5 minutes of a real podcast as a sample", "Send it to the host", "Offer a per-episode price"], ["Audacity", "Descript"]],
 ];
+
+export const IDEAS: Idea[] = ROWS.map(([id, name, how, real, time, budget, kind, earn, cost, diff, steps, tools]) => ({
+  id, name, how, real, time, budget, kind, earn, cost, diff, steps, tools,
+}));
 
 // Full plans for every idea live in guides.ts.

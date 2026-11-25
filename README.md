@@ -19,6 +19,12 @@ With no keys in `.env.local` the site runs in **preview mode**: sign-in and paym
 - Paid spins are added only by Stripe: the webhook (`/api/stripe/webhook`) and the return page both call `add_credits`, which credits each checkout session exactly once.
 - The free spin resets at midnight in `SPIN_RESET_TIMEZONE` (default Toronto time) for everyone.
 
+## Ideas
+
+All 30 ideas can be done fully online from anywhere (no weather, location or in-person work). Each has a type (design, video, writing or helping) that the Type filter uses. Ideas live in `src/lib/ideas.ts`, full plans in `src/lib/guides.ts`.
+
+The disclaimer is in the footer on every page and under every plan. `/terms` and `/privacy` are plain-language starters, not a lawyer's review.
+
 ## Where things live
 
 | What | File |

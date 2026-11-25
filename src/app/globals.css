@@ -231,3 +231,6 @@ footer nav a:hover{color:var(--fg)}
 .savestreak input:focus{outline:2px solid var(--accent);outline-offset:1px;background:var(--surface)}
 .mcard .linkbtn{align-self:center;font-size:13.5px}
 @media (max-width:540px){.pill.streak{display:none}}
+.disclaim{margin:28px 0 0;padding:14px 16px;border:1px solid var(--line);border-radius:14px;font-size:13px;line-height:1.5;color:var(--muted);background:var(--surface)}
+.disclaim a{color:inherit}
+footer .fine{max-width:640px;margin:8px auto 0;line-height:1.5}
