@@ -222,3 +222,12 @@ footer nav{display:flex;gap:16px;justify-content:center;margin-bottom:8px}
 footer nav a{color:var(--muted);text-decoration:none}
 footer nav a:hover{color:var(--fg)}
 .btn.busy{opacity:.6;pointer-events:none}
+.pill.streak{color:var(--fg);background:var(--raise)}
+.savestreak{width:100%;max-width:660px;text-align:left;border:1px dashed var(--line2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.savestreak p{margin:0;font-size:14px;color:var(--muted)}
+.savestreak p b{color:var(--fg);font-weight:600}
+.savestreak div{display:flex;gap:8px;flex-wrap:wrap}
+.savestreak input{flex:1;min-width:180px;font:400 15px var(--body);color:var(--fg);background:var(--raise);border:1px solid var(--line);border-radius:999px;padding:9px 16px}
+.savestreak input:focus{outline:2px solid var(--accent);outline-offset:1px;background:var(--surface)}
+.mcard .linkbtn{align-self:center;font-size:13.5px}
+@media (max-width:540px){.pill.streak{display:none}}

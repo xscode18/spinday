@@ -6,12 +6,12 @@ import { makeClip } from "@/components/clip";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 
 /* ---------- types shared with the API ---------- */
-interface GuideStep { t: string; min?: string; d: string; go?: [string, string][]; script?: string }
+interface GuideStep { t: string; min?: string; d?: string; go?: [string, string][]; script?: string }
 interface Guide { phases: { when: string; sub: string; steps: GuideStep[] }[]; pricing: [string, string, string][]; pricenote: string; mistakes: string[] }
 type Plan = { kind: "full"; guide: Guide } | { kind: "short"; steps: string[]; tools: string[] };
 interface Idea { id: string; name: string; how: string; real: string; earn: string; cost: string; time: 1 | 2 | 3; diff: string; plan: Plan }
 interface Wallet { freeLeft: boolean; credits: number }
-interface Me { signedIn: boolean; email?: string | null; wallet?: Wallet; last?: Idea | null }
+interface Me { signedIn: boolean; email?: string | null; wallet?: Wallet; streak?: number; last?: Idea | null }
 type Filters = { time: string; budget: string; where: string; diff: string };
 
 const TIME_LABEL = ["", "Under 30 min", "1–2 hours", "All day"];
@@ -55,6 +55,8 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
   const [landKey, setLandKey] = useState(0);
   const [nextDrop, setNextDrop] = useState("Next update soon");
   const [clipBusy, setClipBusy] = useState(false);
+  const [networkUsed, setNetworkUsed] = useState(false);
+  const [saveEmail, setSaveEmail] = useState("");
 
   const reelRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
@@ -144,6 +146,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
       const paid = params.get("paid");
       if (params.has("paid") || params.has("canceled") || params.has("signin")) history.replaceState(null, "", "/");
       if (params.get("signin") === "failed") toast("That sign-in link didn't work. Try again.");
+      if (params.get("signin") === "ok") toast("You're in. Your streak and spins are saved to your email.");
       if (params.has("canceled")) toast("Payment canceled. Nothing was charged.");
       if (paid) {
         const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ session_id: paid }) });
@@ -178,10 +181,6 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
 
   const spin = useCallback(async () => {
     if (spinning || !me) return;
-    if (!me.signedIn) {
-      openAuth("Sign in to spin", "It's free. You get 1 spin every day, and your plan stays saved.", "spin");
-      return;
-    }
     if (me.wallet && !me.wallet.freeLeft && me.wallet.credits < 1) { setModal("pay"); return; }
 
     setSpinning(true);
@@ -192,14 +191,14 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
       setSpinning(false);
       setKicker("Today you're going to…");
       if (j.wallet) setMe((m) => (m ? { ...m, wallet: j.wallet } : m));
-      if (j.error === "signin") { setMe({ signedIn: false }); openAuth("Sign in to spin", "Your session ran out. Sign in again to keep spinning.", "spin"); }
-      else if (j.error === "nospins") setModal("pay");
+      if (j.error === "nospins") { setNetworkUsed(false); setModal("pay"); }
+      else if (j.error === "network") { setNetworkUsed(true); setModal("pay"); }
       else if (j.error === "nomatch") toast("Nothing fits all those filters yet. Loosen one and spin again.");
       else toast("Something went wrong. Your spin wasn't used. Try again.");
       return;
     }
     const pick: Idea = j.idea;
-    setMe((m) => (m ? { ...m, wallet: j.wallet } : m));
+    setMe((m) => (m ? { ...m, wallet: j.wallet, streak: j.streak } : m));
     if (!reduce.current) {
       let last = "";
       for (let k = 0; k < 34; k++) {
@@ -239,9 +238,9 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
     if (error) { setBusy(false); toast("Google sign-in isn't working right now. Try email."); }
   };
 
-  const emailSignIn = async (e: React.FormEvent) => {
+  const emailSignIn = async (e: React.FormEvent, raw = email) => {
     e.preventDefault();
-    const v = email.trim();
+    const v = raw.trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { toast("Enter your email to continue."); return; }
     if (demo) {
       await fetch("/api/demo/signin", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: v }) });
@@ -270,7 +269,6 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
     const j = await r.json().catch(() => ({}));
     if (j.url) { location.href = j.url; return; }
     setBusy(false);
-    if (j.error === "signin") { setModal(null); openAuth("Sign in to buy spins", "Make a free account first. It takes one tap.", "pay"); return; }
     if (j.test) {
       setModal(null);
       setMe((m) => (m ? { ...m, wallet: j.wallet } : m));
@@ -332,9 +330,10 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
   /* ---------- view ---------- */
   const w = me?.wallet;
   const signedIn = !!me?.signedIn;
-  const pill = !signedIn ? "1 free spin a day" : w?.freeLeft ? "1 free spin today" : w && w.credits > 0 ? `${w.credits} spin${w.credits > 1 ? "s" : ""} left` : "Free spin used";
-  const spinLabel = !signedIn || w?.freeLeft ? "Spin" : w && w.credits > 0 ? "Spin again" : "Spin again · $1";
-  const daily = signedIn && w && !w.freeLeft
+  const streak = me?.streak ?? 0;
+  const pill = w?.freeLeft ? "1 free spin today" : w && w.credits > 0 ? `${w.credits} spin${w.credits > 1 ? "s" : ""} left` : "Free spin used";
+  const spinLabel = !w || w.freeLeft ? "Spin" : w && w.credits > 0 ? "Spin again" : "Spin again · $1";
+  const daily = w && !w.freeLeft
     ? <>Your <b>free spin</b> comes back tomorrow. Extra spins are $1.</>
     : <>You get <b>1 free spin every day</b>. Extra spins are $1.</>;
   const initial = (me?.email ?? "?").trim().charAt(0).toUpperCase() || "?";
@@ -358,9 +357,10 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
             ))}
           </div>
           <div className="right">
+            {streak > 0 && <span className="pill streak" title="Days in a row you've spun">🔥 {streak}-day streak</span>}
             <span className="pill">{me ? pill : " "}</span>
             {me && !signedIn && (
-              <button className="signbtn" onClick={() => openAuth("Make your account", "One tap. You keep your daily free spin and your plans.")}>Sign in</button>
+              <button className="signbtn" onClick={() => openAuth("Save your streak", "Optional. Add your email so your streak, plans and spins follow you to any device.")}>Sign in</button>
             )}
             {signedIn && (
               <div className="acct">
@@ -401,6 +401,16 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
                   ))}
                 </div>
                 <p className="realtalk"><b>Real talk</b>{idea.real}</p>
+                {!signedIn && (
+                  <form className="savestreak" onSubmit={(e) => emailSignIn(e, saveEmail)} noValidate>
+                    <p><b>{streak > 1 ? `Keep your ${streak}-day streak.` : "Start a streak."}</b> Add your email so it isn&apos;t lost if you clear your browser. Optional, no password.</p>
+                    <div>
+                      <label className="sr" htmlFor="saveemail">Email</label>
+                      <input id="saveemail" type="email" placeholder="you@email.com" autoComplete="email" value={saveEmail} onChange={(e) => setSaveEmail(e.target.value)} />
+                      <button className={`btn white${busy ? " busy" : ""}`} type="submit">Save it</button>
+                    </div>
+                  </form>
+                )}
                 <a className="scrollcue" href="#plan">See the full plan ↓</a>
               </div>
             )}
@@ -428,7 +438,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
                         <li className={`step${checked[k] ? " done" : ""}`} key={k}>
                           <input type="checkbox" disabled={!locked} checked={!!checked[k]} onChange={() => toggle(k)} aria-label={s.t} />
                           <div className="t">{s.t}{s.min && <span className="mins">{s.min}</span>}</div>
-                          <p className="d" dangerouslySetInnerHTML={{ __html: s.d }} />
+                          {s.d && <p className="d" dangerouslySetInnerHTML={{ __html: s.d }} />}
                           {s.go && <div className="go">{s.go.map(([l, u]) => <a key={u} href={u} target="_blank" rel="noopener noreferrer">{l} ↗</a>)}</div>}
                           {s.script && <div className="script"><button className="copy" type="button" onClick={() => copy(s.script!)}>Copy</button><span>{s.script}</span></div>}
                         </li>
@@ -528,9 +538,11 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
       {modal === "pay" && (
         <div className="modal" role="dialog" aria-modal="true" aria-labelledby="payt" onClick={(e) => e.target === e.currentTarget && setModal(null)}>
           <div className="mcard">
-            {w && !w.freeLeft && <span className="tag" style={{ alignSelf: "flex-start" }}>Today&apos;s free spin is used</span>}
+            {w && !w.freeLeft && <span className="tag" style={{ alignSelf: "flex-start" }}>{networkUsed ? "Today's free spin on this Wi-Fi is used" : "Today's free spin is used"}</span>}
             <h3 id="payt">Keep spinning</h3>
-            <p>Your free spin comes back tomorrow. Want another one now? Bought spins never expire.</p>
+            <p>{networkUsed && !signedIn
+              ? "Someone on this network already used today's free spin. Add your email to get your own, or grab one now."
+              : "Your free spin comes back tomorrow. Want another one now? Bought spins never expire."}</p>
             <div className="packs">
               {PACKS.map((p) => (
                 <button key={p.id} className="pack" aria-pressed={pack.id === p.id} onClick={() => setPack(p)}>
@@ -539,6 +551,11 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
               ))}
             </div>
             <button className={`btn${busy ? " busy" : ""}`} onClick={buy}>Pay ${pack.price} and spin</button>
+            {!signedIn && (
+              <button className="linkbtn" type="button" onClick={() => { setModal(null); openAuth(networkUsed ? "Get your own free spin" : "Keep your spins safe", "Add your email (optional). Spins you buy and your streak stay with you on any device.", networkUsed ? "spin" : "pay"); }}>
+                {networkUsed ? "Add my email for my own free spin" : "Add my email so my spins are saved"}
+              </button>
+            )}
             <button className="btn white" onClick={() => setModal(null)}>Maybe tomorrow</button>
             <p className="demo">{paymentsLive ? "Secure checkout by Stripe" : "Test mode · no real payment"}</p>
           </div>
