@@ -234,3 +234,9 @@ footer nav a:hover{color:var(--fg)}
 .disclaim{margin:28px 0 0;padding:14px 16px;border:1px solid var(--line);border-radius:14px;font-size:13px;line-height:1.5;color:var(--muted);background:var(--surface)}
 .disclaim a{color:inherit}
 footer .fine{max-width:640px;margin:8px auto 0;line-height:1.5}
+.ask .qnum{font-size:12px;font-weight:500;color:var(--dim);letter-spacing:.02em}
+.answers{display:flex;flex-direction:column;gap:8px}
+.answers .auth[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:var(--accent-soft)}
+.askfoot{display:flex;justify-content:space-between;align-items:center}
+.ask .askfoot .linkbtn{font-size:13.5px}
+.askhint{margin:0;text-align:center;font-size:13px;color:var(--dim)}

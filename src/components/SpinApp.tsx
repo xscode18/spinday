@@ -27,6 +27,14 @@ const FILTER_GROUPS: { key: keyof Filters; label: string; opts: [string, string]
   { key: "diff", label: "Level", opts: [["any", "Any"], ["Easy", "Easy"], ["Medium", "Medium"]] },
 ];
 
+const QUESTIONS: Record<keyof Filters, string> = {
+  time: "How much time do you have today?",
+  budget: "How much can you spend to start?",
+  kind: "What kind of work sounds good?",
+  diff: "How hard do you want it?",
+};
+const PICKS_KEY = "sd-filters";
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const localDay = () => new Date().toLocaleDateString("en-CA");
 const store = {
@@ -57,6 +65,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
   const [clipBusy, setClipBusy] = useState(false);
   const [networkUsed, setNetworkUsed] = useState(false);
   const [saveEmail, setSaveEmail] = useState("");
+  const [ask, setAsk] = useState<number | null>(null);
 
   const reelRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
@@ -140,6 +149,10 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
       reel.appendChild(w);
     }
     (async () => {
+      let saved: Filters | null = null;
+      try { saved = JSON.parse(store.get(PICKS_KEY) ?? "null"); } catch { /* ignore */ }
+      if (saved && typeof saved === "object") setFilters((f) => ({ ...f, ...saved }));
+      else if (!location.search) setAsk(0);
       const d = new Date(), n = (8 - d.getDay()) % 7 || 7;
       setNextDrop(`Next update in ${n} day${n > 1 ? "s" : ""}`);
       const params = new URLSearchParams(location.search);
@@ -160,6 +173,15 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
       }
     })();
   }, [flipTo, loadMe, toast, showIdea]);
+
+  /* ---------- filters (remembered in this browser) ---------- */
+  const choose = (key: keyof Filters, v: string) =>
+    setFilters((f) => { const next = { ...f, [key]: v }; store.set(PICKS_KEY, JSON.stringify(next)); return next; });
+  const closeAsk = () => { setAsk(null); store.set(PICKS_KEY, JSON.stringify(filters)); };
+  const answer = (key: keyof Filters, v: string) => {
+    choose(key, v);
+    setAsk((a) => (a !== null && a < FILTER_GROUPS.length - 1 ? a + 1 : null));
+  };
 
   /* ---------- plan progress (kept in this browser) ---------- */
   const planKey = idea ? `sd-plan-${localDay()}-${idea.id}` : "";
@@ -322,7 +344,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
   };
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { setModal(null); setMenu(false); } };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { setModal(null); setMenu(false); setAsk(null); } };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
@@ -351,7 +373,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
                 <span>{g.label}</span>
                 {g.opts.map(([v, label]) => (
                   <button key={v} className="chip" aria-pressed={filters[g.key] === v} disabled={spinning}
-                    onClick={() => setFilters((f) => ({ ...f, [g.key]: v }))}>{label}</button>
+                    onClick={() => choose(g.key, v)}>{label}</button>
                 ))}
               </div>
             ))}
@@ -507,6 +529,27 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
         </div></section>
       </main>
       <Footer />
+
+      {ask !== null && (
+        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="askt">
+          <div className="mcard ask">
+            <span className="qnum">Question {ask + 1} of {FILTER_GROUPS.length}</span>
+            <h3 id="askt">{QUESTIONS[FILTER_GROUPS[ask].key]}</h3>
+            <div className="answers">
+              {FILTER_GROUPS[ask].opts.map(([v, label]) => (
+                <button key={v} className="auth" aria-pressed={filters[FILTER_GROUPS[ask].key] === v} onClick={() => answer(FILTER_GROUPS[ask].key, v)}>{label}</button>
+              ))}
+            </div>
+            <div className="askfoot">
+              {ask > 0
+                ? <button className="linkbtn" onClick={() => setAsk(ask - 1)}>← Back</button>
+                : <span />}
+              <button className="linkbtn" onClick={closeAsk}>Skip</button>
+            </div>
+            <p className="askhint">You can change these anytime in the bar at the top.</p>
+          </div>
+        </div>
+      )}
 
       {modal === "auth" && (
         <div className="modal" role="dialog" aria-modal="true" aria-labelledby="autht" onClick={(e) => e.target === e.currentTarget && setModal(null)}>
