@@ -15,8 +15,17 @@ export interface Viewer {
 export interface Wallet {
   freeLeft: boolean;
   credits: number;
+  /** On the monthly plan: spins don't use anything up. */
+  unlimited: boolean;
 }
-export type SpinKind = "free" | "paid" | "none" | "ip_limit";
+export interface Sub {
+  owner: string;
+  stripe_customer: string | null;
+  stripe_subscription: string | null;
+  status: string;
+  current_period_end: string | null;
+}
+export type SpinKind = "free" | "paid" | "sub" | "none" | "ip_limit";
 export type SpinResult = { kind: SpinKind; wallet: Wallet };
 
 export const GUEST_COOKIE = "spinday_guest";
@@ -26,9 +35,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 // ---------- Demo backend (before Supabase is connected): kept in server memory ----------
 type DemoRow = { free_spin_date: string | null; credits: number; days: string[]; last?: { idea: string; at: string } };
-type DemoState = { wallets: Map<string, DemoRow>; purchases: Set<string>; ips: Map<string, number> };
-const g = globalThis as unknown as { __spinDemo2?: DemoState };
-const demo = (g.__spinDemo2 ??= { wallets: new Map(), purchases: new Set(), ips: new Map() });
+type DemoState = { wallets: Map<string, DemoRow>; purchases: Set<string>; ips: Map<string, number>; subs: Map<string, Sub> };
+const g = globalThis as unknown as { __spinDemo3?: DemoState };
+const demo = (g.__spinDemo3 ??= { wallets: new Map(), purchases: new Set(), ips: new Map(), subs: new Map() });
 function demoRow(owner: string): DemoRow {
   let r = demo.wallets.get(owner);
   if (!r) demo.wallets.set(owner, (r = { free_spin_date: null, credits: 0, days: [] }));
@@ -77,15 +86,35 @@ export async function demoSignOut() {
   (await cookies()).delete(DEMO_COOKIE);
 }
 
+// ---------- monthly plan ----------
+export async function getSub(owner: string): Promise<Sub | null> {
+  if (DEMO) return demo.subs.get(owner) ?? null;
+  const { data } = await supabaseAdmin().from("subscriptions").select("*").eq("owner", owner).maybeSingle();
+  return (data as Sub | null) ?? null;
+}
+
+/** Active, trialing or briefly past due (Stripe is retrying the card) and not past the paid period. */
+export function subActive(s: Sub | null): boolean {
+  if (!s || !["active", "trialing", "past_due"].includes(s.status)) return false;
+  return !s.current_period_end || new Date(s.current_period_end).getTime() > Date.now() - 3 * 864e5;
+}
+
+export async function saveSub(s: Sub) {
+  if (DEMO) { demo.subs.set(s.owner, s); return; }
+  const { error } = await supabaseAdmin().from("subscriptions").upsert({ ...s, updated_at: new Date().toISOString() }, { onConflict: "owner" });
+  if (error) throw error;
+}
+
 // ---------- wallet ----------
 export async function getWallet(owner: string): Promise<Wallet> {
   const t = today();
+  const unlimited = subActive(await getSub(owner));
   if (DEMO) {
     const r = demoRow(owner);
-    return { freeLeft: r.free_spin_date !== t, credits: r.credits };
+    return { freeLeft: r.free_spin_date !== t, credits: r.credits, unlimited };
   }
   const { data } = await supabaseAdmin().from("wallets").select("free_spin_date, credits").eq("owner", owner).maybeSingle();
-  return { freeLeft: !data || data.free_spin_date !== t, credits: data?.credits ?? 0 };
+  return { freeLeft: !data || data.free_spin_date !== t, credits: data?.credits ?? 0, unlimited };
 }
 
 /** Days in a row (ending today or yesterday) with at least one spin. */
@@ -118,6 +147,17 @@ export async function history(owner: string): Promise<{ last: string | null; str
 /** Atomically spends today's free spin (guests: if their network still has one today), or one paid spin. */
 export async function spendSpin(v: Viewer, ideaId: string, filters: unknown): Promise<SpinResult> {
   const t = today();
+  // Monthly plan: record the spin and touch nothing else.
+  if (!v.guest && subActive(await getSub(v.owner))) {
+    if (DEMO) {
+      const r = demoRow(v.owner);
+      r.last = { idea: ideaId, at: t }; r.days.push(t);
+    } else {
+      const { error } = await supabaseAdmin().from("spins").insert({ owner: v.owner, idea_id: ideaId, paid: true, spin_day: t, filters });
+      if (error) throw error;
+    }
+    return { kind: "sub", wallet: await getWallet(v.owner) };
+  }
   const ip = v.guest ? await networkHash() : null;
   if (DEMO) {
     const r = demoRow(v.owner);
@@ -133,7 +173,7 @@ export async function spendSpin(v: Viewer, ideaId: string, filters: unknown): Pr
     }
     if (kind !== "free" && r.credits > 0) { r.credits--; kind = "paid"; }
     if (kind === "free" || kind === "paid") { r.last = { idea: ideaId, at: t }; r.days.push(t); }
-    return { kind, wallet: { freeLeft: r.free_spin_date !== t, credits: r.credits } };
+    return { kind, wallet: { freeLeft: r.free_spin_date !== t, credits: r.credits, unlimited: false } };
   }
   const { data, error } = await supabaseAdmin().rpc("use_spin", {
     p_owner: v.owner, p_today: t, p_idea: ideaId, p_filters: filters, p_ip_hash: ip, p_ip_limit: GUEST_SPINS_PER_NETWORK,
@@ -141,7 +181,7 @@ export async function spendSpin(v: Viewer, ideaId: string, filters: unknown): Pr
   if (error) throw error;
   const row = Array.isArray(data) ? data[0] : data;
   const freeLeft = row.kind === "ip_limit" ? false : row.free_spin_date !== t;
-  return { kind: row.kind, wallet: { freeLeft, credits: row.credits } };
+  return { kind: row.kind, wallet: { freeLeft, credits: row.credits, unlimited: false } };
 }
 
 /** Credits a purchase once per checkout session. */

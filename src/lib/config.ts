@@ -24,6 +24,9 @@ export const PACKS = {
 } as const;
 export type PackId = keyof typeof PACKS;
 
+/** Monthly plan: unlimited spins while it's active. */
+export const PLAN = { cents: 1000, label: "Unlimited spins", interval: "month" } as const;
+
 /** Today's date (YYYY-MM-DD) in the reset time zone. */
 export function today(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: RESET_TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);

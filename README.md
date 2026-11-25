@@ -17,6 +17,8 @@ With no keys in `.env.local` the site runs in **preview mode**: sign-in and paym
 - Email (magic link) or Google is optional. Signing in moves the browser's spins, streak and purchases onto the account (`merge_owner`) and gives that person their own daily free spin even on a shared network.
 - The server picks the idea and spends the spin (`src/app/api/spin/route.ts` → `use_spin` in `supabase/migrations/0002_guest_spins.sql`).
 - Paid spins are added only by Stripe: the webhook (`/api/stripe/webhook`) and the return page both call `add_credits`, which credits each checkout session exactly once.
+- Unlimited plan ($10 CAD/month): Checkout in subscription mode; `customer.subscription.*` webhooks keep the `subscriptions` table (`0003_subscriptions.sql`) current on renewal, failed payment and cancel. While active, spins skip the free/paid counter. Signed-in users only; "Manage plan" opens Stripe's customer portal (`/api/portal`).
+- Prices are set in code (`PACKS`, `PLAN` in `src/lib/config.ts`) and sent to Stripe at checkout, so no products need to be created in Stripe.
 - The free spin resets at midnight in `SPIN_RESET_TIMEZONE` (default Toronto time) for everyone.
 
 ## Ideas

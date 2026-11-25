@@ -15,5 +15,6 @@ export async function POST(req: Request) {
   if (owner !== viewer.owner) return NextResponse.json({ error: "session" }, { status: 403 });
   await creditSession(session);
   const spins = Number(session.metadata?.spins) || 0;
-  return NextResponse.json({ paid: session.payment_status === "paid", spins, wallet: await getWallet(viewer.owner) });
+  const monthly = session.mode === "subscription";
+  return NextResponse.json({ paid: session.status === "complete" && (monthly || session.payment_status === "paid"), spins, monthly, wallet: await getWallet(viewer.owner) });
 }

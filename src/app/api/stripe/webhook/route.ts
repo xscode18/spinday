@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { STRIPE_WEBHOOK_SECRET } from "@/lib/config";
-import { creditSession, stripe } from "@/lib/stripe";
+import { creditSession, stripe, syncSubscription } from "@/lib/stripe";
 
 
 export async function POST(req: Request) {
@@ -13,8 +13,17 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "bad signature" }, { status: 400 });
   }
-  if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
-    await creditSession(event.data.object as Stripe.Checkout.Session);
+  switch (event.type) {
+    case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded":
+      await creditSession(event.data.object as Stripe.Checkout.Session);
+      break;
+    // Monthly plan: started, renewed, payment failed, cancelled.
+    case "customer.subscription.created":
+    case "customer.subscription.updated":
+    case "customer.subscription.deleted":
+      await syncSubscription(event.data.object as Stripe.Subscription);
+      break;
   }
   return NextResponse.json({ received: true });
 }
