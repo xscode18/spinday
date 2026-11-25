@@ -332,31 +332,32 @@ export const GUIDES: Record<string, Guide> = {
     ],
   },
 
-  ugc: {
+  adcreative: {
     phases: [
-      { when: "Right now", sub: "Make samples", steps: [
-        { t: "Film 3 sample videos", min: "1–2 hrs",
-          d: "Use products you already own. Each 15–30 seconds: <b>hook (first 2 seconds), show it in use, one honest reason you like it</b>. Natural light, clear audio.", go: [L.capcut] },
-        { t: "Make a simple portfolio page", min: "30 min", d: "A Carrd or Canva page with your 3 videos, what you make and how to contact you.", go: [L.carrd, L.canva] },
+      { when: "Right now", sub: "Pick 3 brands", steps: [
+        { t: "Find online brands already running ads", min: "20 min",
+          d: "Search the <b>Meta Ad Library</b> or TikTok's Creative Center for small online brands (skincare, phone cases, supplements, apps). If they already pay for ads, they need fresh videos.", go: [["Meta Ad Library", "https://www.facebook.com/ads/library/"], ["TikTok Creative Center", "https://ads.tiktok.com/business/creativecenter/"]] },
+        { t: "Save their product photos and clips", min: "15 min", d: "From their website and social pages. You'll only use these for a sample sent to them." },
       ] },
-      { when: "Today", sub: "Pitch 10 brands", steps: [
-        { t: "Find small brands", min: "20 min", d: "Small and growing brands on Instagram and TikTok that already post creator videos. Find their <b>business email</b> on their site." },
-        { t: "Send a short pitch", min: "30 min",
-          script: "Hi [brand] team! I'm [name], a UGC creator. I love your [product] and made a sample of the kind of video I'd make for you: [link]\n\nI create short videos you can use on your page and in ads. Packages start at $[price] for 3 videos. Would you like to work together?" },
+      { when: "Today", sub: "Make sample ads", steps: [
+        { t: "Edit a 15-second ad for each", min: "1–2 hrs",
+          d: "<b>Hook (first 2 seconds), the problem, the product fixing it, a clear call to action.</b> Add bold captions, a trending sound and a text or AI voiceover.", go: [L.capcut, L.canva] },
+        { t: "Make a portfolio page", min: "20 min", d: "Put your 3 sample ads on a simple Carrd or Canva page.", go: [L.carrd] },
       ] },
-      { when: "This week", sub: "First deal", steps: [
-        { t: "Agree on usage rights", d: "Organic posting only, or ads too? <b>Ads usage should cost more.</b> Put it in writing." },
-        { t: "Deliver raw and edited", d: "Send the edited video plus raw clips in a shared folder.", go: [L.drive] },
+      { when: "This week", sub: "Pitch", steps: [
+        { t: "Email the brand their sample", min: "10 min each",
+          script: "Hi [brand] team! I make short video ads for online brands and made this one for [product] as a sample: [link]\n\nIt's yours to keep if you like it. I can make 4 new ads a month for $[price] so you always have fresh ones to test. Want me to send a few more ideas?" },
+        { t: "Agree on how many and how fast", d: "Put the number of ads, revisions and delivery time in writing before you start." },
       ] },
       { when: "Get paid", sub: "Money in", steps: getPaid(INVOICE) },
     ],
-    pricing: [["Single video", "Organic use", "$50–$150"], ["3-video pack", "Organic use", "$150–$350"], ["Ads usage", "Paid ads rights", "+30–50%"]],
-    pricenote: "Your first deals might pay in product. Ask for cash once you have 3 brand samples.",
+    pricing: [["Single ad", "15–30 sec, 1 revision", "$25–$100"], ["Monthly pack", "4 ads", "$150–$400"], ["Variations", "New hooks on one ad", "+$10–$20 each"]],
+    pricenote: "Brands test lots of ads. Selling hook variations is easy extra money.",
     mistakes: [
-      "<b>No hook.</b> The first 2 seconds decide everything.",
-      "<b>Giving away ad rights for free.</b> Charge extra for ads.",
-      "<b>Fake reviews.</b> Only say what's true, and follow ad-disclosure rules when you post for a brand.",
-      "<b>Long, wordy pitches.</b> Lead with the sample video.",
+      "<b>Slow openings.</b> If the first 2 seconds are boring, the ad fails.",
+      "<b>Posting their content publicly.</b> Your sample is for them only until they say yes.",
+      "<b>Copyrighted music.</b> Use sounds licensed for ads.",
+      "<b>Unlimited revisions.</b> Agree on 1 or 2.",
     ],
   },
 
@@ -389,34 +390,34 @@ export const GUIDES: Record<string, Guide> = {
     ],
   },
 
-  declutter: {
+  faceless: {
     phases: [
-      { when: "Right now", sub: "Pick and photograph", steps: [
-        { t: "Grab 5 small things you don't use", min: "10 min",
-          d: "Best for shipping: <b>video games, headphones, phone accessories, books, small electronics, brand-name clothes</b>. Light and unbreakable is easiest. Ask first if it isn't yours to sell." },
-        { t: "Check what they really sell for", min: "10 min",
-          d: "On eBay, search the item and turn on the <b>Sold items</b> filter. That's the real price, not what people are asking.",
-          go: [["eBay", "https://www.ebay.com"], ["Mercari", "https://www.mercari.com"]] },
-        { t: "Photograph in daylight", min: "15 min", d: "Clean it, then <b>4–6 photos</b> on a plain background: front, back, brand label, any damage." },
+      { when: "Right now", sub: "Pick your page", steps: [
+        { t: "Choose one niche", min: "10 min",
+          d: "Pick something people save and share: <b>money tips, study hacks, AI tools, gaming clips you made, motivational quotes, phone tricks</b>. One niche only, so TikTok knows who to show it to." },
+        { t: "Set up the account", min: "10 min",
+          d: "New account with a clear name and bio that says what people get (\"Daily AI tools that save you hours\"). Switch to a <b>Business or Creator account</b> to see stats.", go: [L.tiktok] },
       ] },
-      { when: "Today", sub: "List them", steps: [
-        { t: "List all 5 with clear titles", min: "30 min",
-          d: "Title = <b>brand + item + model + condition</b>. Weigh each item (a kitchen scale works) so the shipping cost is right. Under 18? You'll need a parent's account." },
-        { t: "Answer questions fast", d: "Quick, honest answers turn watchers into buyers." },
+      { when: "Today", sub: "Post your first 3", steps: [
+        { t: "Make 3 videos without your face", min: "45 min",
+          d: "Use <b>screen recordings, text on screen, stock clips or slideshows</b> with a voiceover or trending sound. Only use clips and music you're allowed to use. CapCut has free stock footage and sounds.", go: [L.capcut, ["Pexels (free clips)", "https://www.pexels.com/videos/"]] },
+        { t: "Hook in the first second", min: "10 min",
+          d: "Start with the payoff: <b>\"This free app writes your essay outline in 10 seconds.\"</b> Then show it." },
       ] },
-      { when: "This week", sub: "Ship and repeat", steps: [
-        { t: "Ship within 2 days", d: "Print the label from the app, pack it well, and drop it off with the carrier. Fast shipping gets good reviews." },
-        { t: "Drop the price on anything unsold after a week", d: "Lower it by 10–15% or send offers to watchers." },
+      { when: "This week", sub: "Grow it", steps: [
+        { t: "Post 1 to 3 times a day", d: "Same times every day. Keep what gets views and drop what doesn't. Check your stats every 3 days." },
+        { t: "Add a way to earn", d: "Once you get steady views, add <b>affiliate links</b> for apps and online tools you actually use (many have affiliate programs). Put them in a free link-in-bio page. Say clearly that it's an affiliate link.", go: [["Linktree", "https://linktr.ee"]] },
+        { t: "Sell shoutouts", d: "At a few thousand followers, other pages and small apps will pay for a mention. DM pages in your niche with your stats." },
       ] },
-      { when: "Get paid", sub: "Money in", steps: getPaid("The marketplace pays you after the buyer gets the item. Fees and shipping come off the top.") },
+      { when: "Get paid", sub: "Money in", steps: getPaid("Affiliate programs pay out monthly to PayPal or your bank. For shoutouts, ask for payment <b>before</b> you post. If you're under 18, you may need a parent's help to set up payouts.") },
     ],
-    pricing: [["Small items", "Accessories, books", "$5–$20 each"], ["Games and gear", "Video games, headphones", "$15–$80"], ["Electronics", "Consoles, phones", "$50–$300"]],
-    pricenote: "Your profit is the sale price minus fees and shipping. Skip heavy, cheap items.",
+    pricing: [["Affiliate link", "Per sale or sign-up", "$1–$50"], ["Shoutout", "One post or story", "$10–$50 to start"], ["Creator Rewards", "18+, 10k followers", "Varies"]],
+    pricenote: "Shoutout prices go up with your average views, not your follower count.",
     mistakes: [
-      "<b>Guessing shipping.</b> Weigh it first or the postage eats your profit.",
-      "<b>Hiding damage.</b> It means a return and a bad review.",
-      "<b>Pricing at what you paid.</b> Use sold listings, not asking prices.",
-      "<b>Deals off the platform.</b> Never accept payment outside the app. That's where scams happen.",
+      "<b>Switching niches.</b> Pick one and stick to it for 30 days.",
+      "<b>Using clips you don't own.</b> Reposting other people's videos gets pages banned.",
+      "<b>Hiding affiliate links.</b> Always say when you earn from a link.",
+      "<b>Quitting at day 10.</b> Most pages take weeks before one video takes off.",
     ],
   },
 
@@ -821,33 +822,33 @@ export const GUIDES: Record<string, Guide> = {
     ],
   },
 
-  pod: {
+  headshots: {
     phases: [
-      { when: "Right now", sub: "Pick a niche", steps: [
-        { t: "Pick a niche with a sense of humour", min: "15 min",
-          d: "<b>Nurses, teachers, gamers, a specific dog breed, a hobby.</b> People buy shirts and stickers that say who they are." },
-        { t: "Check the rules", min: "10 min",
-          d: "<b>No brand names, logos, characters, celebrity faces or song lyrics.</b> Those get removed and can get you banned." },
+      { when: "Right now", sub: "Try it on yourself", steps: [
+        { t: "Pick an AI headshot tool", min: "10 min",
+          d: "Search \"AI headshot generator\" and pick one with good reviews and a clear privacy policy that deletes uploads. Many cost <b>$10–$20 for a set</b>. Check the age rules; many are 18+." },
+        { t: "Make your own set", min: "30 min",
+          d: "Upload 10 to 15 clear selfies with different angles and good light. Pick the 5 best results." },
       ] },
-      { when: "Today", sub: "Make designs", steps: [
-        { t: "Make 10 simple designs", min: "2 hrs", d: "Short, funny text with a simple graphic works best. Use a transparent background.", go: [L.canva] },
-        { t: "Upload with good tags", min: "45 min",
-          d: "Redbubble and similar sites print and ship for you. Use the words buyers search in your titles and tags.",
-          go: [["Redbubble", "https://www.redbubble.com"], ["TeePublic", "https://www.teepublic.com"]] },
+      { when: "Today", sub: "Make it look pro", steps: [
+        { t: "Touch up the best ones", min: "30 min",
+          d: "Fix <b>odd hands, ears, teeth and backgrounds</b>. Crop for LinkedIn (square, face centered) and make one wide banner image.", go: [L.canva, ["Photopea (free)", "https://www.photopea.com"]] },
+        { t: "Post a before and after", min: "15 min", d: "On TikTok, Instagram or LinkedIn: <b>\"I turned 10 selfies into LinkedIn photos for $15.\"</b>", go: [L.tiktok, ["LinkedIn", "https://www.linkedin.com"]] },
       ] },
-      { when: "This week", sub: "Get eyes on it", steps: [
-        { t: "Post where your niche hangs out", d: "Make a short TikTok or a Pinterest pin of the design on a mockup.", go: [L.tiktok, L.pinterest] },
-        { t: "Add 5 designs a week", d: "More designs means more chances. Watch which ones get views and make more like them." },
+      { when: "This week", sub: "First customers", steps: [
+        { t: "Do 3 sets for a review", d: "Offer friends, classmates or people job hunting a set at cost in exchange for a review and permission to show it." },
+        { t: "Offer it to job seekers", min: "20 min",
+          script: "Hi [name]! I make professional LinkedIn photos from your selfies. You send 10 to 15 photos, I send back 5 polished headshots and a banner in 48 hours for $[price]. Your photos are deleted after. Here are some examples: [link]" },
       ] },
-      { when: "Get paid", sub: "Money in", steps: getPaid("The site pays your cut monthly to PayPal or your bank. Under 18? An adult needs to own the account.") },
+      { when: "Get paid", sub: "Money in", steps: getPaid("Ask for payment <b>upfront</b> through PayPal, since you pay for the AI credits. If you're under 18, you may need a parent's help to set up payouts.") },
     ],
-    pricing: [["Your cut", "Per shirt sold", "$2–$6"], ["Stickers", "Per sticker sold", "$0.50–$2"], ["Catalogue", "100 designs up", "Varies a lot"]],
-    pricenote: "This is a slow numbers game. A few designs end up making most of the sales.",
+    pricing: [["Basic", "5 headshots", "$15–$25"], ["Pro", "10 headshots + banner", "$30–$40"], ["Team", "Per person, 5+ people", "$15 each"]],
+    pricenote: "Your cost is the AI credits, so always charge more than that per person.",
     mistakes: [
-      "<b>Using brands, characters or lyrics.</b> Instant takedown.",
-      "<b>Too much detail.</b> Simple designs print and sell better.",
-      "<b>Bad tags.</b> Nobody can buy what they can't find.",
-      "<b>Quitting after 10 designs.</b> Most sellers need 50–100.",
+      "<b>Sending weird results.</b> Check every hand, ear and tooth before you deliver.",
+      "<b>Making photos of people without asking.</b> Only use selfies people send you themselves.",
+      "<b>Keeping their photos.</b> Delete uploads and results after delivery, and say you will.",
+      "<b>Making people look like someone else.</b> Headshots should still look like them.",
     ],
   },
 
