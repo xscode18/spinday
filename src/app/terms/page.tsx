@@ -31,6 +31,9 @@ export default function Terms() {
         <p>You get one free spin a day, reset at midnight Toronto time. It&apos;s one per person: making extra accounts or using other tricks to get more free spins isn&apos;t allowed, and we may limit free spins per device or network.</p>
         <p>Extra spins are sold in packs, priced in Canadian dollars. Paid spins don&apos;t expire while SpinDay runs. Because a spin is used the moment you spin, used spins aren&apos;t refundable. If you were charged by mistake or something went wrong, contact us and we&apos;ll make it right. Nothing here limits any rights you have under consumer law where you live.</p>
 
+        <h2>Unlimited monthly plan</h2>
+        <p>The unlimited plan costs $10 CAD a month and renews automatically each month until you cancel. You can cancel anytime from your account menu (Manage plan); you keep unlimited spins until the end of the month you&apos;ve paid for, and you won&apos;t be charged again. We don&apos;t give partial refunds for unused time, except where the law requires it. Unlimited means normal personal use; automated or abusive spinning isn&apos;t allowed.</p>
+
         <h2>Using the site fairly</h2>
         <p>Don&apos;t try to break, overload or get around the site&apos;s limits, and don&apos;t copy the ideas and plans to resell them. We may suspend accounts that do.</p>
 

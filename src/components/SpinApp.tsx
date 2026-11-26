@@ -10,7 +10,7 @@ interface GuideStep { t: string; min?: string; d?: string; go?: [string, string]
 interface Guide { phases: { when: string; sub: string; steps: GuideStep[] }[]; pricing: [string, string, string][]; pricenote: string; mistakes: string[] }
 type Plan = { kind: "full"; guide: Guide } | { kind: "short"; steps: string[]; tools: string[] };
 interface Idea { id: string; name: string; how: string; real: string; earn: string; cost: string; time: 1 | 2 | 3; diff: string; plan: Plan }
-interface Wallet { freeLeft: boolean; credits: number }
+interface Wallet { freeLeft: boolean; credits: number; unlimited?: boolean }
 interface Me { signedIn: boolean; email?: string | null; wallet?: Wallet; streak?: number; last?: Idea | null }
 type Filters = { time: string; budget: string; kind: string; diff: string };
 
@@ -164,7 +164,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
       if (paid) {
         const r = await fetch("/api/checkout/confirm", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ session_id: paid }) });
         const j = await r.json().catch(() => ({}));
-        if (j.paid) toast(`Payment done. ${j.spins} spin${j.spins > 1 ? "s" : ""} added.`);
+        if (j.paid) toast(j.monthly ? "You're unlimited. Spin as much as you want." : `Payment done. ${j.spins} spin${j.spins > 1 ? "s" : ""} added.`);
       }
       const data = await loadMe();
       if (data.last && !paid) {
@@ -203,7 +203,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
 
   const spin = useCallback(async () => {
     if (spinning || !me) return;
-    if (me.wallet && !me.wallet.freeLeft && me.wallet.credits < 1) { setModal("pay"); return; }
+    if (me.wallet && !me.wallet.unlimited && !me.wallet.freeLeft && me.wallet.credits < 1) { setModal("pay"); return; }
 
     setSpinning(true);
     setKicker("Spinning…");
@@ -301,6 +301,34 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
     toast("Payments aren't switched on yet. Your free spin is back tomorrow.");
   };
 
+  const goMonthly = async () => {
+    if (!signedIn) {
+      setModal(null);
+      openAuth("Go unlimited", "Add your email first so your plan works on any device. No password needed.", "pay");
+      return;
+    }
+    setBusy(true);
+    const r = await fetch("/api/checkout", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ plan: "monthly" }) });
+    const j = await r.json().catch(() => ({}));
+    if (j.url) { location.href = j.url; return; }
+    setBusy(false);
+    if (j.test) {
+      setModal(null);
+      setMe((m) => (m ? { ...m, wallet: j.wallet } : m));
+      toast("Test mode: unlimited spins for 30 days. Nothing was charged.");
+      return;
+    }
+    toast("Payments aren't switched on yet.");
+  };
+
+  const managePlan = async () => {
+    setMenu(false);
+    const r = await fetch("/api/portal", { method: "POST" });
+    const j = await r.json().catch(() => ({}));
+    if (j.url) location.href = j.url;
+    else toast("Couldn't open your plan settings. Try again in a minute.");
+  };
+
   const lock = () => {
     setLocked(true);
     savePlan(true, checked);
@@ -353,9 +381,11 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
   const w = me?.wallet;
   const signedIn = !!me?.signedIn;
   const streak = me?.streak ?? 0;
-  const pill = w?.freeLeft ? "1 free spin today" : w && w.credits > 0 ? `${w.credits} spin${w.credits > 1 ? "s" : ""} left` : "Free spin used";
-  const spinLabel = !w || w.freeLeft ? "Spin" : w && w.credits > 0 ? "Spin again" : "Spin again · $1";
-  const daily = w && !w.freeLeft
+  const pill = w?.unlimited ? "Unlimited spins" : w?.freeLeft ? "1 free spin today" : w && w.credits > 0 ? `${w.credits} spin${w.credits > 1 ? "s" : ""} left` : "Free spin used";
+  const spinLabel = w?.unlimited ? (idea ? "Spin again" : "Spin") : !w || w.freeLeft ? "Spin" : w && w.credits > 0 ? "Spin again" : "Spin again · $1";
+  const daily = w?.unlimited
+    ? <>You&apos;re on <b>unlimited spins</b>. Spin as much as you want.</>
+    : w && !w.freeLeft
     ? <>Your <b>free spin</b> comes back tomorrow. Extra spins are $1.</>
     : <>You get <b>1 free spin every day</b>. Extra spins are $1.</>;
   const initial = (me?.email ?? "?").trim().charAt(0).toUpperCase() || "?";
@@ -390,7 +420,9 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
                 {menu && (
                   <div className="menu">
                     <small>{me?.email}</small>
-                    <button onClick={() => { setMenu(false); setModal("pay"); }}>Buy spins</button>
+                    {w?.unlimited
+                      ? <button onClick={managePlan}>Manage plan</button>
+                      : <button onClick={() => { setMenu(false); setModal("pay"); }}>Buy spins</button>}
                     <button onClick={signOut}>Sign out</button>
                   </div>
                 )}
@@ -599,6 +631,10 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
               ))}
             </div>
             <button className={`btn${busy ? " busy" : ""}`} onClick={buy}>Pay ${pack.price} and spin</button>
+            <div className="plan">
+              <div><b>Unlimited · $10/month</b><span>Spin as much as you want. Cancel anytime.</span></div>
+              <button className={`btn white${busy ? " busy" : ""}`} onClick={goMonthly}>Go unlimited</button>
+            </div>
             {!signedIn && (
               <button className="linkbtn" type="button" onClick={() => { setModal(null); openAuth(networkUsed ? "Get your own free spin" : "Keep your spins safe", "Add your email (optional). Spins you buy and your streak stay with you on any device.", networkUsed ? "spin" : "pay"); }}>
                 {networkUsed ? "Add my email for my own free spin" : "Add my email so my spins are saved"}
