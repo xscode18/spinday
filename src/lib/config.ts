@@ -36,3 +36,6 @@ export function today(now = new Date()): string {
 export const GUEST_SPINS_PER_NETWORK = Math.max(1, Number(process.env.GUEST_SPINS_PER_NETWORK ?? 1) || 1);
 /** Salt for hashing network addresses (falls back to the service key so nothing extra must be set). */
 export const IP_SALT = process.env.SPIN_IP_SALT || SUPABASE_SERVICE_ROLE_KEY || "spinday-demo";
+
+/** Emails (comma separated) allowed to approve proof videos at /admin. In preview mode, empty means everyone. */
+export const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);

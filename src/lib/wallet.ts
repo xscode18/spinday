@@ -222,4 +222,11 @@ export async function mergeGuestInto(userOwner: string) {
   jar.delete(GUEST_COOKIE);
 }
 
+/** Demo mode only: every owner's spin days, for the leaderboards. */
+export function demoSpinDays(): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  demo.wallets.forEach((r, owner) => out.set(owner, r.days));
+  return out;
+}
+
 export { RESET_TZ };

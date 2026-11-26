@@ -25,6 +25,9 @@ export default function Privacy() {
         <h2>Payments</h2>
         <p>Card, Apple Pay and Google Pay details go straight to Stripe. We never see or store them. We keep a record of each purchase (pack, amount and date).</p>
 
+        <h2>Leaderboard and proof videos</h2>
+        <p>If you pick a leaderboard name, that name, your rank and your spin and streak counts are shown publicly. Your email is never shown. Videos you post are stored privately until we review them; approved videos are shown on the leaderboard with your name, the idea and your caption, and others can like them. We delete rejected videos. Email us to take down any video you posted or remove your name from the leaderboard.</p>
+
         <h2>Kept only in your browser</h2>
         <p>The steps you tick off in a plan are saved in your own browser, not on our servers.</p>
 
@@ -35,7 +38,7 @@ export default function Privacy() {
         <p>We don&apos;t sell or rent your data, and we don&apos;t send you marketing email unless you ask for it.</p>
 
         <h2>Who handles it</h2>
-        <p>Supabase stores accounts and spins, Stripe handles payments, Vercel hosts the site and Google handles Google sign-in. These services may store data outside your country, including in the United States.</p>
+        <p>Supabase stores accounts, spins and proof videos, Stripe handles payments, Vercel hosts the site and Google handles Google sign-in. These services may store data outside your country, including in the United States.</p>
 
         <h2>Your choices</h2>
         <p>You can clear your browser cookies at any time. To see, correct or delete what we hold about you, email us from the address on your account and we&apos;ll do it, including everything linked to your account.</p>
