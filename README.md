@@ -21,6 +21,16 @@ With no keys in `.env.local` the site runs in **preview mode**: sign-in and paym
 - Prices are set in code (`PACKS`, `PLAN` in `src/lib/config.ts`) and sent to Stripe at checkout, so no products need to be created in Stripe.
 - The free spin resets at midnight in `SPIN_RESET_TIMEZONE` (default Toronto time) for everyone.
 
+## Ranks and leaderboard
+
+`/leaderboard` has three tabs: **Videos uploaded** (default), **Spins** and **Streaks**.
+
+- Signed-in users pick a public leaderboard name (never their email), then post a proof video of doing an idea. The browser uploads the file straight to a private Supabase Storage bucket (`proofs`, 50 MB max) with a one-time link from `/api/videos`, so big files never pass through Vercel.
+- Nothing is public until someone in `ADMIN_EMAILS` approves it at `/admin`. Rejected files are deleted. Approved videos are played through short-lived signed links.
+- Rank (Rookie → Legend) comes from video points: 100 per approved video, 10 per like from another account (`SCORE` and `TIERS` in `src/lib/tiers.ts`). Max 3 uploads a day; you can't like your own video.
+- Spins board counts days with a spin (extra spins the same day don't count, so buying spins doesn't buy rank). Streaks board shows current and best streak.
+- Tables and board functions: `supabase/migrations/0004_ranks.sql`. Server logic: `src/lib/ranks.ts`. In preview mode a few made-up players fill the boards.
+
 ## Ideas
 
 All 30 ideas can be done fully online from anywhere (no weather, location or in-person work). Each has a type (design, video, writing or helping) that the Type filter uses. Ideas live in `src/lib/ideas.ts`, full plans in `src/lib/guides.ts`.

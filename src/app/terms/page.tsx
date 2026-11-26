@@ -27,6 +27,10 @@ export default function Terms() {
         <h2>Who can use SpinDay</h2>
         <p>If you&apos;re under 18, or under the age of majority where you live, use SpinDay and buy spins only with a parent or guardian&apos;s permission, and get their help with any idea that involves money, contracts or strangers online.</p>
 
+        <h2 id="videos">Leaderboard and proof videos</h2>
+        <p>Your leaderboard name must not pretend to be someone else or be offensive. Only post videos you made yourself. Don&apos;t show anyone else&apos;s private information (blur names, emails, faces of people who didn&apos;t agree, and client details), and nothing hateful, sexual, violent, illegal or misleading. Every video is reviewed before it goes public, and we may reject or remove any video or name, or reset ranks, at our discretion, including for fake likes or extra accounts.</p>
+        <p>You keep ownership of your videos. By posting one you give SpinDay permission to show it on the site while it&apos;s up. Ask us anytime to take it down. Ranks and likes are just for fun: they have no cash value and don&apos;t show that anyone earned money.</p>
+
         <h2>Free and paid spins</h2>
         <p>You get one free spin a day, reset at midnight Toronto time. It&apos;s one per person: making extra accounts or using other tricks to get more free spins isn&apos;t allowed, and we may limit free spins per device or network.</p>
         <p>Extra spins are sold in packs, priced in Canadian dollars. Paid spins don&apos;t expire while SpinDay runs. Because a spin is used the moment you spin, used spins aren&apos;t refundable. If you were charged by mistake or something went wrong, contact us and we&apos;ll make it right. Nothing here limits any rights you have under consumer law where you live.</p>

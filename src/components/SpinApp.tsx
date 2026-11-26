@@ -34,6 +34,7 @@ const QUESTIONS: Record<keyof Filters, string> = {
   diff: "How hard do you want it?",
 };
 const PICKS_KEY = "sd-filters";
+const AFTER_KEY = "sd-after-signin";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const localDay = () => new Date().toLocaleDateString("en-CA");
@@ -69,7 +70,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
 
   const reelRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
-  const afterAuth = useRef<null | "spin" | "pay">(null);
+  const afterAuth = useRef<null | "spin" | "pay" | "board">(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const reduce = useRef(false);
 
@@ -157,7 +158,14 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
       setNextDrop(`Next update in ${n} day${n > 1 ? "s" : ""}`);
       const params = new URLSearchParams(location.search);
       const paid = params.get("paid");
-      if (params.has("paid") || params.has("canceled") || params.has("signin")) history.replaceState(null, "", "/");
+      if (params.get("signin") === "ok" && store.get(AFTER_KEY) === "board") { store.set(AFTER_KEY, ""); location.replace("/leaderboard"); return; }
+      if (params.has("paid") || params.has("canceled") || params.has("signin") || params.has("join")) history.replaceState(null, "", "/");
+      if (params.has("join")) {
+        setAuthCopy({ title: "Join the leaderboard", why: "Sign in with Google or email to post proof videos and get ranked. No password needed." });
+        afterAuth.current = "board";
+        store.set(AFTER_KEY, "board");
+        setModal("auth");
+      }
       if (params.get("signin") === "failed") toast("That sign-in link didn't work. Try again.");
       if (params.get("signin") === "ok") toast("You're in. Your streak and spins are saved to your email.");
       if (params.has("canceled")) toast("Payment canceled. Nothing was charged.");
@@ -195,9 +203,11 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
   const doneCount = stepKeys.filter((k) => checked[k]).length;
 
   /* ---------- actions ---------- */
-  const openAuth = (title: string, why: string, after: null | "spin" | "pay" = null) => {
+  const openAuth = (title: string, why: string, after: null | "spin" | "pay" | "board" = null) => {
     setAuthCopy({ title, why });
     afterAuth.current = after;
+    // Email links and Google come back on a fresh page load, so remember where to go next.
+    if (after === "board") store.set(AFTER_KEY, "board");
     setModal("auth");
   };
 
@@ -244,6 +254,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
     const next = afterAuth.current;
     afterAuth.current = null;
     if (!data.signedIn) return;
+    if (next === "board") { store.set(AFTER_KEY, ""); location.replace(new URL("/leaderboard", location.href)); return; }
     if (next === "pay") setModal("pay");
     else if (next === "spin") setTimeout(() => document.getElementById("spin")?.click(), 300);
   }, [loadMe]);
@@ -409,6 +420,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
             ))}
           </div>
           <div className="right">
+            <a className="pill rankpill" href="/leaderboard" title="Ranks and leaderboard" aria-label="Leaderboard">🏆<span> Leaderboard</span></a>
             {streak > 0 && <span className="pill streak" title="Days in a row you've spun">🔥 {streak}-day streak</span>}
             <span className="pill">{me ? pill : " "}</span>
             {me && !signedIn && (
@@ -420,6 +432,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
                 {menu && (
                   <div className="menu">
                     <small>{me?.email}</small>
+                    <a href="/leaderboard">Leaderboard and rank</a>
                     {w?.unlimited
                       ? <button onClick={managePlan}>Manage plan</button>
                       : <button onClick={() => { setMenu(false); setModal("pay"); }}>Buy spins</button>}
@@ -529,6 +542,12 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
             </>
           )}
           {idea && (
+            <div className="lockbar" style={{ marginTop: 28 }}>
+              <p><b style={{ color: "var(--fg)", fontWeight: 600 }}>Did it?</b> Post a video of you doing it to rank up on the leaderboard.</p>
+              <a className="btn white" href="/leaderboard" style={{ textDecoration: "none" }}>Post proof</a>
+            </div>
+          )}
+          {idea && (
             <p className="disclaim">
               <b>Heads up:</b> this is an idea, not a promise. Earnings are rough ranges and many people make less or nothing. It isn&apos;t financial, legal or tax advice. Follow each site&apos;s rules and age limits and the laws where you live. <a href="/terms">Terms</a>
             </p>
@@ -598,7 +617,7 @@ export default function SpinApp({ names, demo, paymentsLive, supabaseUrl, supaba
               <input type="email" id="email" placeholder="you@email.com" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               <button className={`auth emailbtn${busy ? " busy" : ""}`} type="submit">Email me a sign-in link</button>
             </form>
-            <button className="btn white" onClick={() => { setModal(null); afterAuth.current = null; }}>Not now</button>
+            <button className="btn white" onClick={() => { setModal(null); afterAuth.current = null; store.set(AFTER_KEY, ""); }}>Not now</button>
             <p className="demo">No password needed</p>
           </div>
         </div>
